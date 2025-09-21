@@ -7,41 +7,58 @@
 
 <AnchorPane prefHeight="418.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.project.Controller">
    <children>
-      <TextField layoutX="67.0" layoutY="44.0" prefHeight="66.0" prefWidth="263.0" />
-      <Button layoutX="67.0" layoutY="132.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="77.0" text="1" />
-      <Button layoutX="160.0" layoutY="132.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="77.0" text="2" />
-      <Button layoutX="253.0" layoutY="132.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="77.0" text="3" />
-      <Button layoutX="67.0" layoutY="200.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="77.0" text="4" />
-      <Button layoutX="160.0" layoutY="200.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="77.0" text="5" />
-      <Button layoutX="253.0" layoutY="200.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="77.0" text="6" />
-      <Button layoutX="67.0" layoutY="270.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="77.0" text="7" />
-      <Button layoutX="160.0" layoutY="270.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="77.0" text="8" />
-      <Button layoutX="253.0" layoutY="270.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="77.0" text="9" />
-      <Button layoutX="367.0" layoutY="83.0" mnemonicParsing="false" prefHeight="66.0" prefWidth="90.0" text="+">
+      <TextField fx:id="display" editable="false" layoutX="67.0" layoutY="44.0" prefHeight="66.0" prefWidth="263.0" />
+      
+      <Button fx:id="btn1" layoutX="67.0" layoutY="132.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="1" />
+      <Button fx:id="btn2" layoutX="160.0" layoutY="132.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="2" />
+      <Button fx:id="btn3" layoutX="253.0" layoutY="132.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="3" />
+      <Button fx:id="btn4" layoutX="67.0" layoutY="200.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="4" />
+      <Button fx:id="btn5" layoutX="160.0" layoutY="200.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="5" />
+      <Button fx:id="btn6" layoutX="253.0" layoutY="200.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="6" />
+      <Button fx:id="btn7" layoutX="67.0" layoutY="270.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="7" />
+      <Button fx:id="btn8" layoutX="160.0" layoutY="270.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="8" />
+      <Button fx:id="btn9" layoutX="253.0" layoutY="270.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="9" />
+      <Button fx:id="btnAdd" layoutX="368.0" layoutY="85.0" mnemonicParsing="false" onAction="#handleOperator" prefHeight="66.0" prefWidth="90.0" text="+">
          <font>
             <Font size="18.0" />
          </font>
       </Button>
-      <Button layoutX="478.0" layoutY="83.0" mnemonicParsing="false" prefHeight="66.0" prefWidth="90.0" text="-">
+      <Button fx:id="btnSub" layoutX="479.0" layoutY="85.0" mnemonicParsing="false" onAction="#handleOperator" prefHeight="66.0" prefWidth="90.0" text="-">
          <font>
             <Font size="18.0" />
          </font>
       </Button>
-      <Button layoutX="367.0" layoutY="167.0" mnemonicParsing="false" prefHeight="66.0" prefWidth="90.0" text="*">
+      <Button fx:id="btnMul" layoutX="368.0" layoutY="169.0" mnemonicParsing="false" onAction="#handleOperator" prefHeight="66.0" prefWidth="90.0" text="*">
          <font>
             <Font size="18.0" />
          </font>
       </Button>
-      <Button layoutX="478.0" layoutY="167.0" mnemonicParsing="false" prefHeight="66.0" prefWidth="90.0" text="/">
+      <Button fx:id="btnDiv" layoutX="479.0" layoutY="169.0" mnemonicParsing="false" onAction="#handleOperator" prefHeight="66.0" prefWidth="90.0" text="/">
          <font>
             <Font size="18.0" />
          </font>
       </Button>
-      <Button layoutX="365.0" layoutY="248.0" mnemonicParsing="false" prefHeight="66.0" prefWidth="204.0" text="=">
+      <Button fx:id="btnEqual" layoutX="366.0" layoutY="250.0" mnemonicParsing="false" onAction="#handleEqual" prefHeight="66.0" prefWidth="204.0" text="=">
          <font>
             <Font size="18.0" />
          </font>
       </Button>
-      <Button layoutX="160.0" layoutY="338.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="77.0" text="0" />
+      <Button fx:id="btn0" layoutX="160.0" layoutY="338.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="0" />
+      <Button fx:id="btnClear" layoutX="415.0" layoutY="338.0" mnemonicParsing="false" onAction="#handleClear" prefHeight="14.0" prefWidth="106.0" text="CLEAR">
+      <font>
+         <Font size="18.0" />
+      </font>
+      </Button>
    </children>
-</AnchorPane>
+</AnchorPane> 
+
+
+<!-- 
+   RECUERDA:
+
+   - Para que sea más organizado cada botón debe tener un fx:id
+   - Cada botón debe tener un onAction si se quiere tener una funcionalidad dentro de la interfaz
+   - El evento tendrá el nombre del método dentro del controller
+   faltan agregar más notas y muchos comentarios de explicación zzzzzz
+
+-->

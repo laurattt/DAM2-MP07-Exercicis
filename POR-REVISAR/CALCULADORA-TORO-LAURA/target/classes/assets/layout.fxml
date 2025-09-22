@@ -7,47 +7,66 @@
 
 <AnchorPane prefHeight="418.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.project.Controller">
    <children>
-      <TextField fx:id="display" editable="false" layoutX="67.0" layoutY="44.0" prefHeight="66.0" prefWidth="263.0" />
+
+      <TextField fx:id="textField" editable="false" layoutX="67.0" layoutY="44.0" prefHeight="66.0" prefWidth="263.0" /> <!-- el id es importante para crear la variable en el controller-->
       
-      <Button fx:id="btn1" layoutX="67.0" layoutY="132.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="1" />
-      <Button fx:id="btn2" layoutX="160.0" layoutY="132.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="2" />
-      <Button fx:id="btn3" layoutX="253.0" layoutY="132.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="3" />
-      <Button fx:id="btn4" layoutX="67.0" layoutY="200.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="4" />
-      <Button fx:id="btn5" layoutX="160.0" layoutY="200.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="5" />
-      <Button fx:id="btn6" layoutX="253.0" layoutY="200.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="6" />
-      <Button fx:id="btn7" layoutX="67.0" layoutY="270.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="7" />
-      <Button fx:id="btn8" layoutX="160.0" layoutY="270.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="8" />
-      <Button fx:id="btn9" layoutX="253.0" layoutY="270.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="9" />
-      <Button fx:id="btnAdd" layoutX="368.0" layoutY="85.0" mnemonicParsing="false" onAction="#handleOperator" prefHeight="66.0" prefWidth="90.0" text="+">
+      <!-- BOTONES NUM
+            - fx:id "..." -> fx:id="btn1"
+            - onAction = "#nombreMetodoListener" -> onAction="#number"
+      -->
+
+      <Button fx:id="btn1" layoutX="67.0" layoutY="132.0" mnemonicParsing="false" onAction="#numberAction" prefHeight="48.0" prefWidth="77.0" text="1" />
+      <Button fx:id="btn2" layoutX="160.0" layoutY="132.0" mnemonicParsing="false" onAction="#numberAction" prefHeight="48.0" prefWidth="77.0" text="2" />
+      <Button fx:id="btn3" layoutX="253.0" layoutY="132.0" mnemonicParsing="false" onAction="#numberAction" prefHeight="48.0" prefWidth="77.0" text="3" />
+      <Button fx:id="btn4" layoutX="67.0" layoutY="200.0" mnemonicParsing="false" onAction="#numberAction" prefHeight="48.0" prefWidth="77.0" text="4" />
+      <Button fx:id="btn5" layoutX="160.0" layoutY="200.0" mnemonicParsing="false" onAction="#numberAction" prefHeight="48.0" prefWidth="77.0" text="5" />
+      <Button fx:id="btn6" layoutX="253.0" layoutY="200.0" mnemonicParsing="false" onAction="#numberAction" prefHeight="48.0" prefWidth="77.0" text="6" />
+      <Button fx:id="btn7" layoutX="67.0" layoutY="270.0" mnemonicParsing="false" onAction="#numberAction" prefHeight="48.0" prefWidth="77.0" text="7" />
+      <Button fx:id="btn8" layoutX="160.0" layoutY="270.0" mnemonicParsing="false" onAction="#numberAction" prefHeight="48.0" prefWidth="77.0" text="8" />
+      <Button fx:id="btn9" layoutX="253.0" layoutY="270.0" mnemonicParsing="false" onAction="#numberAction" prefHeight="48.0" prefWidth="77.0" text="9" />
+      <Button fx:id="btn0" layoutX="160.0" layoutY="338.0" mnemonicParsing="false" onAction="#numberAction" prefHeight="48.0" prefWidth="77.0" text="0" />
+
+
+      <!-- BOTONES OPERADORES
+            - fx:id "..."
+            - onAction = "#nombreMetodoListener"
+      -->
+
+      <Button fx:id="btnAdd" layoutX="368.0" layoutY="85.0" mnemonicParsing="false" onAction="#operatorAction" prefHeight="66.0" prefWidth="90.0" text="+">
          <font>
             <Font size="18.0" />
          </font>
       </Button>
-      <Button fx:id="btnSub" layoutX="479.0" layoutY="85.0" mnemonicParsing="false" onAction="#handleOperator" prefHeight="66.0" prefWidth="90.0" text="-">
+      <Button fx:id="btnSub" layoutX="479.0" layoutY="85.0" mnemonicParsing="false" onAction="#operatorAction" prefHeight="66.0" prefWidth="90.0" text="-">
          <font>
             <Font size="18.0" />
          </font>
       </Button>
-      <Button fx:id="btnMul" layoutX="368.0" layoutY="169.0" mnemonicParsing="false" onAction="#handleOperator" prefHeight="66.0" prefWidth="90.0" text="*">
+      <Button fx:id="btnMul" layoutX="368.0" layoutY="169.0" mnemonicParsing="false" onAction="#operatorAction" prefHeight="66.0" prefWidth="90.0" text="*">
          <font>
             <Font size="18.0" />
          </font>
       </Button>
-      <Button fx:id="btnDiv" layoutX="479.0" layoutY="169.0" mnemonicParsing="false" onAction="#handleOperator" prefHeight="66.0" prefWidth="90.0" text="/">
+      <Button fx:id="btnDiv" layoutX="479.0" layoutY="169.0" mnemonicParsing="false" onAction="#operatorAction" prefHeight="66.0" prefWidth="90.0" text="/">
          <font>
             <Font size="18.0" />
          </font>
       </Button>
-      <Button fx:id="btnEqual" layoutX="366.0" layoutY="250.0" mnemonicParsing="false" onAction="#handleEqual" prefHeight="66.0" prefWidth="204.0" text="=">
+
+      <!-- BOTON IGUAL: 
+             Aqui va la lógica de las operaciones zzz
+      -->
+      <Button fx:id="btnEqual" layoutX="366.0" layoutY="250.0" mnemonicParsing="false" onAction="#equalAction" prefHeight="66.0" prefWidth="204.0" text="=">
          <font>
             <Font size="18.0" />
          </font>
       </Button>
-      <Button fx:id="btn0" layoutX="160.0" layoutY="338.0" mnemonicParsing="false" onAction="#handleNumber" prefHeight="48.0" prefWidth="77.0" text="0" />
-     <Button fx:id="btnClear" layoutX="415.0" layoutY="338.0" mnemonicParsing="false" onAction="#handleClear" prefHeight="14.0" prefWidth="106.0" text="CLEAR">
-    <font>
-        <Font size="18.0" />
-    </font>
-</Button>
+
+      <Button fx:id="btnClear" layoutX="415.0" layoutY="338.0" mnemonicParsing="false" onAction="#clearAction" prefHeight="14.0" prefWidth="106.0" text="CLEAR">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Button>
+
    </children>
 </AnchorPane>

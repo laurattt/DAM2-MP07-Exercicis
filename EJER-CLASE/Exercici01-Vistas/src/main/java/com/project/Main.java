@@ -17,11 +17,11 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
 
         UtilsViews.parentContainer.setStyle("-fx-font: 14 arial;");
+        // Se añaden dos vistas 
         UtilsViews.addView(getClass(), "View0", "/assets/view0.fxml");
         UtilsViews.addView(getClass(), "View1", "/assets/view1.fxml");
 
         Scene scene = new Scene(UtilsViews.parentContainer);
-
         stage.setScene(scene);
         stage.setTitle("Exercici01");
         stage.setMinWidth(WINDOW_WIDTH);

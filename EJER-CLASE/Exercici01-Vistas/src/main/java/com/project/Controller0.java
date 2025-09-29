@@ -32,15 +32,16 @@ public class Controller0 {
     }
 
     @FXML
-    private void initialize() {
+    private void initialize() { //al iniciar se activa está función 
 
         buttonNextView.setDisable(true); //aqui el boton no está activado, aún hay valores vacios
 
-        // Vincular un listener a cada textField para gestionar la habilitación de buttonNextView
+        // Añade listeners a los campos de texto para habilitar el botón solo si ambos tienen texto
         textFieldName.textProperty().addListener(ignore -> updateButton());
         textFieldAge.textProperty().addListener(ignore -> updateButton());
     }
 
+    // Método para habilitar o deshabilitar el botón según si ambos campos tienen texto
     @FXML
     private void updateButton() {
         boolean thereIsName = textFieldName.getText().length() > 0;

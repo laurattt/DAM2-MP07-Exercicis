@@ -8,9 +8,9 @@ import javafx.scene.text.Text;
 public class Controller1 {
 
     @FXML
-    private Button buttonPreviousView;
+    private Button buttonPreviousView; // regresamos a view0
     @FXML
-    private Text textOutput;
+    private Text textOutput; // este Text es donde aparecera nuestro output 
 
     @FXML
     private void toView0(ActionEvent event) {

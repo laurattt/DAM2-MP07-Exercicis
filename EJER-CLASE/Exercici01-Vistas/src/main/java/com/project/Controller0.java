@@ -15,25 +15,26 @@ public class Controller0 {
     @FXML
     private TextField textFieldAge;
 
-    @FXML
+    @FXML // Este método pasa a la siguiente vista 
     private void toView1(ActionEvent event) {
 
         String name = textFieldName.getText();
-        Main.name = name;
+        Main.name = name; // obtiene el nombre y lo guarda en la variable del main 
 
         String age = textFieldAge.getText();
-        Main.age = age;
+        Main.age = age; // lo mismo que con el nombre
 
+        // obtiene controlador y actualiza texto 
         Controller1 controller1 = (Controller1) UtilsViews.getController("View1");
         controller1.updateTextOutput();
 
-        UtilsViews.setViewAnimating("View1");
+        UtilsViews.setViewAnimating("View1"); // animación zz
     }
 
     @FXML
     private void initialize() {
 
-        buttonNextView.setDisable(true);
+        buttonNextView.setDisable(true); //aqui el boton no está activado, aún hay valores vacios
 
         // Vincular un listener a cada textField para gestionar la habilitación de buttonNextView
         textFieldName.textProperty().addListener(ignore -> updateButton());

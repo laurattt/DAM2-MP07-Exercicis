@@ -37,4 +37,4 @@ public class Main extends Application {
     }
 }
 
-// El main se encarga de iniciar la aplicacion y cargar el archivo FXMLWS
+// El main se encarga de iniciar la aplicacion y cargar el archivo FXML

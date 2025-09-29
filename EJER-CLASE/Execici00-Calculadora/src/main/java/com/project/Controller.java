@@ -39,7 +39,7 @@ public class Controller {
         //System.out.println(value);
 
         if (!textField.getText().isEmpty()) {
-            num1 = Double.parseDouble(textField.getText());
+            num1 = Double.parseDouble(textField.getText()); //convierte a numero decimal 
             operador = value;
             textField.setText(textField.getText() + value); // No borra, añade el operador
             start = false;

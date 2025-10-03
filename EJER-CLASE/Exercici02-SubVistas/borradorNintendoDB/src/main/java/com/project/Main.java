@@ -8,8 +8,8 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    final int WINDOW_WIDTH = 300; //aqui falta ver la vista para desktop 
-    final int WINDOW_HEIGHT = 400;
+    final int WINDOW_WIDTH = 400; //aqui falta ver la vista para desktop 
+    final int WINDOW_HEIGHT = 600;
 
     public static void main(String[] args) {
         launch(args);

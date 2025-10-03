@@ -34,7 +34,7 @@ public class ControllerGames implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         Path imagePath = null;
         try {
-            URL imageURL = getClass().getResource("/assets/images0601/arrow-back.png");
+            URL imageURL = getClass().getResource("/assets/images/arrow-back.png");
             Image image = new Image(imageURL.toExternalForm());
             imgArrowBack.setImage(image);
         } catch (Exception e) {
@@ -64,7 +64,7 @@ public class ControllerGames implements Initializable {
 
                 itemController.setName(name);
                 itemController.setYear(String.valueOf(year));
-                itemController.setImatge("/assets/images0601/" + image);
+                itemController.setImatge("/assets/images/" + image);
                 
                 list.getChildren().add(itemTemplate);
             }

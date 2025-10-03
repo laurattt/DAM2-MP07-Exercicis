@@ -32,7 +32,7 @@ public class ControllerConsoles implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         Path imagePath = null;
         try {
-            URL imageURL = getClass().getResource("/assets/images0601/arrow-back.png");
+            URL imageURL = getClass().getResource("/assets/images/arrow-back.png");
             Image image = new Image(imageURL.toExternalForm());
             imgArrowBack.setImage(image);
         } catch (Exception e) {
@@ -62,7 +62,7 @@ public class ControllerConsoles implements Initializable {
 
                 itemController.setName(name);
                 itemController.setDate(date);
-                itemController.setImatge("/assets/images0601/" + image);
+                itemController.setImatge("/assets/images/" + image);
 
                 list.getChildren().add(itemTemplate);
             }

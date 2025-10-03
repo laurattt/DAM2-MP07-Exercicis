@@ -39,7 +39,7 @@ public class ControllerGame implements Initializable{
     public void initialize(URL url, ResourceBundle rb) {
         Path imagePath = null;
         try {
-            URL imageURL = getClass().getResource("/assets/images0601/arrow-back.png");
+            URL imageURL = getClass().getResource("/assets/images/arrow-back.png");
             Image image = new Image(imageURL.toExternalForm());
             imgArrowBack.setImage(image);
         } catch (Exception e) {
@@ -66,7 +66,7 @@ public class ControllerGame implements Initializable{
                     plot.setText(games.getString("plot"));
                     try {
                         String imagePath = games.getString("image");
-                        Image image = new Image("/assets/images0601/" + imagePath);
+                        Image image = new Image("/assets/images/" + imagePath);
                         img.setImage(image);
                     } catch (Exception e) {
                         System.err.println("Error loading image asset: " + games.getString("image"));

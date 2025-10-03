@@ -41,7 +41,7 @@ public class ControllerCharacter implements Initializable{
     public void initialize(URL url, ResourceBundle rb) {
         Path imagePath = null;
         try {
-            URL imageURL = getClass().getResource("/assets/images0601/arrow-back.png");
+            URL imageURL = getClass().getResource("/assets/images/arrow-back.png");
             Image image = new Image(imageURL.toExternalForm());
             imgArrowBack.setImage(image);
         } catch (Exception e) {
@@ -68,7 +68,7 @@ public class ControllerCharacter implements Initializable{
                     circle.setStyle("-fx-fill: " + character.getString("color"));
                     try {
                         String imagePath = character.getString("image");
-                        Image image = new Image("/assets/images0601/" + imagePath);
+                        Image image = new Image("/assets/images/" + imagePath);
                         img.setImage(image);
                     } catch (Exception e) {
                         System.err.println("Error loading image asset: " + character.getString("image"));

@@ -29,11 +29,11 @@ public class ControllerCharacter implements Initializable{
     @FXML
     private Label game = new Label();
     @FXML
-    private Label colorL = new Label();
+    private Label colorL = new Label(); // se va
     @FXML
     private ImageView img;
     @FXML
-    private Circle circle = new Circle();
+    private Circle circle = new Circle();// se va
 
     private String nameChar = "";
     
@@ -64,8 +64,8 @@ public class ControllerCharacter implements Initializable{
                 if (this.nameChar.equalsIgnoreCase(character.getString("name"))) {
                     name.setText(character.getString("name"));
                     game.setText(character.getString("game"));
-                    colorL.setText(character.getString("color"));
-                    circle.setStyle("-fx-fill: " + character.getString("color"));
+                    colorL.setText(character.getString("color")); // se va
+                    circle.setStyle("-fx-fill: " + character.getString("color"));// se edita
                     try {
                         String imagePath = character.getString("image");
                         Image image = new Image("/assets/images/" + imagePath);

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<HBox xmlns="http://javafx.com/javafx/8" 
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.project.ChatController"
+      spacing="10" style="-fx-padding: 10;">
+    
+    <!-- Icono -->
+    <ImageView fx:id="icon" fitWidth="40" fitHeight="40" preserveRatio="true"/>
+
+    <!-- Contenedor de nombre + mensaje -->
+    <VBox spacing="5">
+        <Text fx:id="name" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+        <Text fx:id="message" wrappingWidth="300" style="-fx-font-size: 13;"/>
+    </VBox>
+</HBox>

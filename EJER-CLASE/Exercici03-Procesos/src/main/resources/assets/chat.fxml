@@ -5,17 +5,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<HBox xmlns="http://javafx.com/javafx/8" 
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.project.ChatController"
-      spacing="10" style="-fx-padding: 10;">
-    
-    <!-- Icono -->
-    <ImageView fx:id="icon" fitWidth="40" fitHeight="40" preserveRatio="true"/>
+<HBox spacing="10" style="-fx-padding: 10;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.project.ChatController">
 
-    <!-- Contenedor de nombre + mensaje -->
+    <ImageView fx:id="icon" fitHeight="40" fitWidth="40" preserveRatio="true" />
     <VBox spacing="5">
-        <Text fx:id="name" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
-        <Text fx:id="message" wrappingWidth="300" style="-fx-font-size: 13;"/>
+        <Text fx:id="name" style="-fx-font-weight: bold; -fx-font-size: 14;" text="Nombre " />
+        <Text fx:id="message" style="-fx-font-size: 13;" text="Mensaje" wrappingWidth="300" />
     </VBox>
 </HBox>

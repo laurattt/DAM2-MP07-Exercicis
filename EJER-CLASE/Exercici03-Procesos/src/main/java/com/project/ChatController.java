@@ -11,7 +11,7 @@ public class ChatController {
     @FXML private Text name;
     @FXML private Text message;
 
-    // Método para configurar el contenido del mensaje
+    // metodo para configurar el contenido del mensaje
     public void setData(String senderName, String msg, Image iconImage) {
         name.setText(senderName);
         message.setText(msg);

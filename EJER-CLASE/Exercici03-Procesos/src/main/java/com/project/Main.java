@@ -26,7 +26,7 @@ public class Main extends Application {
         // Agregar icono solo en Windows/Linux
         if (!System.getProperty("os.name").contains("Mac")) {
             try {
-                Image icon = new Image(getClass().getResourceAsStream("/images/logo.png"));
+                Image icon = new Image(getClass().getResourceAsStream("/images/ai_icon.png"));
                 stage.getIcons().add(icon);
             } catch (Exception e) {
                 System.out.println("No se pudo cargar el icono.");

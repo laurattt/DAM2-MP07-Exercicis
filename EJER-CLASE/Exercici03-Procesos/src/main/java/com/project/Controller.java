@@ -38,18 +38,18 @@ import javafx.stage.FileChooser;
 
 public class Controller implements Initializable {
 
-    // Modelos
+    // modelos
     private static final String TEXT_MODEL   = "gemma3:1b";
     private static final String VISION_MODEL = "llava-phi3";
 
-    // === FXML ===
+    // fxml
     @FXML private VBox responseBox;
     @FXML private ScrollPane scrollPane;
     @FXML private TextField textPrompt;
     @FXML private ImageView btnAddImage, btnSubmitPrompt;
     @FXML private Rectangle btnStopResponse;
 
-    // === Infraestructura ===
+    // variables internas
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private CompletableFuture<HttpResponse<InputStream>> streamRequest;
     private CompletableFuture<HttpResponse<String>> completeRequest;
@@ -64,23 +64,24 @@ public class Controller implements Initializable {
     private Image aiIcon;
     private Image userIcon;
 
-    // Referencia al último mensaje de la IA (para actualizarlo en streaming)
+    // referencia al último mensaje de la IA (para actualizarlo en streaming)
     private ChatController lastAIMessage;
 
 
     @Override
     public void initialize(java.net.URL url, ResourceBundle rb) {
-        // Cargar imágenes locales
         try {
             aiIcon = new Image(getClass().getResourceAsStream("/images/ai_icon.png"));
             userIcon = new Image(getClass().getResourceAsStream("/images/user_icon.png"));
             btnAddImage.setImage(new Image(getClass().getResourceAsStream("/images/upload.jpg")));
             btnSubmitPrompt.setImage(new Image(getClass().getResourceAsStream("/images/send.jpg")));
+            btnStopResponse.setVisible(true);
+
         } catch (Exception e) { 
             System.out.println("No se pudo cargar imagen"); }
     }
 
-    // === Acciones FXML ===
+    // metodos chat
     @FXML
     private void processCall() {
         String userMessage = textPrompt.getText();
@@ -93,7 +94,7 @@ public class Controller implements Initializable {
         displayUserMessage(currentUserMessage);
 
         isCancelled.set(false);
-        btnStopResponse.setVisible(true);
+        Platform.runLater(() -> btnStopResponse.setDisable(false)); // <-- Se puede cancelar ahora
 
         if (selectedImageBase64 != null) {
             appendAIMessage("Thinking...", false);
@@ -110,6 +111,7 @@ public class Controller implements Initializable {
         }
         textPrompt.clear();
     }
+
 
     @FXML
     private void addImage() {
@@ -133,7 +135,8 @@ public class Controller implements Initializable {
         isCancelled.set(true);
         if (streamRequest != null && !streamRequest.isDone()) streamRequest.cancel(true);
         if (completeRequest != null && !completeRequest.isDone()) completeRequest.cancel(true);
-        if (currentInputStream != null) try { currentInputStream.close(); } catch (Exception ignore) {}
+        if (currentInputStream != null) 
+        try { currentInputStream.close(); } catch (Exception ignore) {}
         if (streamReadingTask != null && !streamReadingTask.isDone()) streamReadingTask.cancel(true);
 
         Platform.runLater(() -> { updateAIMessage("Petición cancelada."); resetUI(); });
@@ -141,17 +144,9 @@ public class Controller implements Initializable {
 
     // === Requests ===
     private void executeTextRequest(String model, String prompt, boolean stream) {
-        JSONObject body = new JSONObject()
-            .put("model", model)
-            .put("prompt", prompt)
-            .put("stream", stream)
-            .put("keep_alive", "10m");
+        JSONObject body = new JSONObject().put("model", model).put("prompt", prompt).put("stream", stream).put("keep_alive", "10m");
 
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("http://localhost:11434/api/generate"))
-            .header("Content-Type", "application/json")
-            .POST(BodyPublishers.ofString(body.toString()))
-            .build();
+        HttpRequest request = HttpRequest.newBuilder() .uri(URI.create("http://localhost:11434/api/generate")).header("Content-Type", "application/json").POST(BodyPublishers.ofString(body.toString())).build();
 
         if (stream) {
             streamRequest = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream())
@@ -159,33 +154,22 @@ public class Controller implements Initializable {
                     currentInputStream = resp.body();
                     streamReadingTask = executorService.submit(this::handleStreamResponse);
                     return resp;
-                })
-                .exceptionally(e -> { if (!isCancelled.get()) e.printStackTrace(); Platform.runLater(this::resetUI); return null; });
+                }).exceptionally(e -> { if (!isCancelled.get()) e.printStackTrace(); Platform.runLater(this::resetUI); return null; });
         }
     }
 
     private void executeImageRequest(String model, String prompt, String base64Image) {
-        JSONObject body = new JSONObject()
-            .put("model", model)
-            .put("prompt", prompt)
-            .put("images", new JSONArray().put(base64Image))
-            .put("stream", false);
+        JSONObject body = new JSONObject().put("model", model).put("prompt", prompt).put("images", new JSONArray().put(base64Image)).put("stream", false);
 
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("http://localhost:11434/api/generate"))
-            .header("Content-Type", "application/json")
-            .POST(BodyPublishers.ofString(body.toString()))
-            .build();
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:11434/api/generate")).header("Content-Type", "application/json").POST(BodyPublishers.ofString(body.toString())).build();
 
-        completeRequest = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-            .thenApply(resp -> {
+        completeRequest = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(resp -> {
                 String msg = tryParseAnyMessage(resp.body());
                 if (msg == null || msg.isBlank()) msg = "(respuesta vacía)";
                 final String toShow = msg;
                 Platform.runLater(() -> { updateAIMessage(toShow); resetUI(); });
                 return resp;
-            })
-            .exceptionally(e -> { if (!isCancelled.get()) e.printStackTrace(); Platform.runLater(() -> { updateAIMessage("Error en la petición."); resetUI(); }); return null; });
+            }).exceptionally(e -> { if (!isCancelled.get()) e.printStackTrace(); Platform.runLater(() -> { updateAIMessage("Error en la petición."); resetUI(); }); return null; });
     }
 
     private void handleStreamResponse() {
@@ -210,7 +194,7 @@ public class Controller implements Initializable {
     private void displayUserMessage(String message) {
         Platform.runLater(() -> {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/chat.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/assets/chat.fxml"));
                 Node node = loader.load();
                 ChatController chatCtrl = loader.getController();
                 chatCtrl.setData("You", message, userIcon);
@@ -222,10 +206,11 @@ public class Controller implements Initializable {
         });
     }
 
+    // flujo chat
     private void appendAIMessage(String message, boolean streaming) {
         Platform.runLater(() -> {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/chat.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/assets/chat.fxml"));
                 Node node = loader.load();
                 ChatController chatCtrl = loader.getController();
                 chatCtrl.setData("IETI", message, aiIcon);
@@ -250,7 +235,7 @@ public class Controller implements Initializable {
     private void showSimpleMessage(String message) {
         Platform.runLater(() -> {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/chat.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/assets/chat.fxml"));
                 Node node = loader.load();
                 ChatController chatCtrl = loader.getController();
                 chatCtrl.setData("System", message, null); // Mensaje de sistema sin icono
@@ -263,11 +248,12 @@ public class Controller implements Initializable {
     }
 
     private void resetUI() {
-        btnStopResponse.setVisible(false);
+        Platform.runLater(() -> btnStopResponse.setDisable(true)); // Desactiva el botón al terminar
         streamRequest = null;
         completeRequest = null;
         selectedImageBase64 = null;
     }
+
 
     private String tryParseAnyMessage(String bodyStr) {
         try {
@@ -280,13 +266,9 @@ public class Controller implements Initializable {
     }
 
     private CompletableFuture<Void> ensureModelLoaded(String modelName) {
-        HttpRequest req = HttpRequest.newBuilder()
-            .uri(URI.create("http://localhost:11434/api/ps"))
-            .GET()
-            .build();
+        HttpRequest req = HttpRequest.newBuilder().uri(URI.create("http://localhost:11434/api/ps")).GET().build();
 
-        return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofString())
-            .thenCompose(resp -> {
+        return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofString()).thenCompose(resp -> {
                 boolean loaded = false;
                 try {
                     JSONObject o = new JSONObject(resp.body());
@@ -301,11 +283,7 @@ public class Controller implements Initializable {
                 } catch (Exception ignore) {}
                 if (loaded) return CompletableFuture.completedFuture(null);
                 JSONObject preload = new JSONObject().put("model", modelName).put("stream", false).put("keep_alive", "10m");
-                HttpRequest preloadReq = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:11434/api/generate"))
-                    .header("Content-Type", "application/json")
-                    .POST(BodyPublishers.ofString(preload.toString()))
-                    .build();
+                HttpRequest preloadReq = HttpRequest.newBuilder().uri(URI.create("http://localhost:11434/api/generate")).header("Content-Type", "application/json").POST(BodyPublishers.ofString(preload.toString())).build();
                 return httpClient.sendAsync(preloadReq, HttpResponse.BodyHandlers.ofString()).thenAccept(r -> {});
             });
     }

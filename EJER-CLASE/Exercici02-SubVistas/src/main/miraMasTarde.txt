@@ -1,5 +1,0 @@
-1. Cambia nombre de carpeta imagenes y ruta en los controllers
-2. Ajusta recuadro de personajes, consolas, juegos etc
-3. Eliminar subVistas 
-
-PRINCIPAL: ver el code >:

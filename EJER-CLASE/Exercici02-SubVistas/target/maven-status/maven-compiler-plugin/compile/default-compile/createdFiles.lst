@@ -1,10 +1,7 @@
-com/project/ControllerGames.class
-com/project/ControllerItem.class
-com/project/ControllerConsole.class
-com/project/ControllerGame.class
-com/project/UtilsViews.class
-com/project/ControllerCharacters.class
 com/project/Main.class
-com/project/ControllerMain.class
-com/project/ControllerCharacter.class
-com/project/ControllerConsoles.class
+com/project/ControllerMobile.class
+com/project/Main$1.class
+com/project/ControllerMobile$ViewState.class
+com/project/ControllerDesktop.class
+com/project/ControllerListItem.class
+com/project/UtilsViews.class

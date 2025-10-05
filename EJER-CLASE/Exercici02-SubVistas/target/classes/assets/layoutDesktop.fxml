@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #2c3e50;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.project.ControllerDesktop">
+   <children>
+      <VBox alignment="TOP_CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <!-- Header -->
+            <HBox alignment="CENTER" fillHeight="false" prefHeight="60.0" style="-fx-background-color: #34495e;">
+               <children>
+                  <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="NINTENDO DB - DESKTOP">
+                     <font>
+                        <Font name="System Bold" size="26.0" />
+                     </font>
+                  </Text>
+               </children>
+               <padding>
+                  <Insets bottom="10.0" top="10.0" />
+               </padding>
+            </HBox>
+
+            <!-- Cuerpo principal -->
+            <HBox fillHeight="true" spacing="10" VBox.vgrow="ALWAYS">
+               <children>
+                  <!-- Panel de selección + lista -->
+                  <VBox prefWidth="250.0" style="-fx-background-color: #4a637d; -fx-border-radius: 5; -fx-background-radius: 5;" VBox.vgrow="ALWAYS">
+                     <children>
+                        <!-- ChoiceBox siempre arriba -->
+                        <ChoiceBox fx:id="choiceBox" prefHeight="50.0" prefWidth="250.0" style="-fx-background-color: #ecf0f1;" />
+
+                        <!-- ScrollPane con lista de items -->
+                        <ScrollPane fx:id="scrollPane" fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
+                           <padding>
+                              <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                           </padding>
+                        </ScrollPane>
+                     </children>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </VBox>
+
+                  <!-- Panel de detalles -->
+                  <VBox fx:id="detailVBox" alignment="TOP_CENTER" style="-fx-background-color: #2c3e50; -fx-border-color: #7f8c8d; -fx-border-width: 1;" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+
+   <padding>
+      <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+   </padding>
+</AnchorPane>

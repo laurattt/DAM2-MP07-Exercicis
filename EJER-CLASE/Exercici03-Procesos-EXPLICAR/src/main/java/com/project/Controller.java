@@ -63,8 +63,6 @@ public class Controller implements Initializable {
     
     private Image aiIcon;
     private Image userIcon;
-
-    // referencia al último mensaje de la IA (para actualizarlo en streaming)
     private ChatController lastAIMessage;
 
 
@@ -91,21 +89,31 @@ public class Controller implements Initializable {
         }
 
         currentUserMessage = userMessage;
-        displayUserMessage(currentUserMessage);
+        displayUserMessage(currentUserMessage); // enseña msg user
 
         isCancelled.set(false);
-        Platform.runLater(() -> btnStopResponse.setDisable(false)); // <-- Se puede cancelar ahora
+        Platform.runLater(() -> btnStopResponse.setDisable(false)); // boton cancelar
 
         if (selectedImageBase64 != null) {
             appendAIMessage("Thinking...", false);
             ensureModelLoaded(VISION_MODEL).whenComplete((v, err) -> {
-                if (err != null) { Platform.runLater(() -> { updateAIMessage("Error cargando modelo visión."); resetUI(); }); return; }
-                executeImageRequest(VISION_MODEL, userMessage, selectedImageBase64);
+                if (err != null) { 
+                    Platform.runLater(() -> { updateAIMessage("Error cargando modelo visión."); 
+                resetUI(); 
+            }); 
+                return; 
+            }
+                executeImageRequest(VISION_MODEL, userMessage, selectedImageBase64); // lee imagen (llava-phi3)
             });
         } else {
             appendAIMessage("", true);
             ensureModelLoaded(TEXT_MODEL).whenComplete((v, err) -> {
-                if (err != null) { Platform.runLater(() -> { updateAIMessage("Error cargando modelo texto."); resetUI(); }); return; }
+                if (err != null) { 
+                    Platform.runLater(() -> { updateAIMessage("Error cargando modelo texto."); 
+                resetUI(); 
+            }); 
+            
+            return; }
                 executeTextRequest(TEXT_MODEL, userMessage, true);
             });
         }
@@ -121,25 +129,41 @@ public class Controller implements Initializable {
             new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg", "*.webp", "*.bmp", "*.gif")
         );
         File file = fc.showOpenDialog(responseBox.getScene().getWindow());
-        if (file == null) { showSimpleMessage("No seleccionaste ningún archivo."); return; }
+        if (file == null) { 
+            showSimpleMessage("No seleccionaste ningún archivo."); 
+        return; 
+    }
 
         try {
-            byte[] bytes = Files.readAllBytes(file.toPath());
-            selectedImageBase64 = Base64.getEncoder().encodeToString(bytes);
-            showSimpleMessage("Imagen cargada: " + file.getName());
-        } catch (Exception e) { e.printStackTrace(); showSimpleMessage("Error leyendo la imagen."); selectedImageBase64 = null; }
+            byte[] bytes = Files.readAllBytes(file.toPath()); // contenido img a bytes para pasar lectura 
+                selectedImageBase64 = Base64.getEncoder().encodeToString(bytes);
+                showSimpleMessage("Imagen cargada: " + file.getName());
+            } catch (Exception e) { 
+                e.printStackTrace(); 
+                showSimpleMessage("Error leyendo la imagen."); 
+            selectedImageBase64 = null; 
+        }
     }
 
     @FXML
     private void cancelCall() {
         isCancelled.set(true);
-        if (streamRequest != null && !streamRequest.isDone()) streamRequest.cancel(true);
-        if (completeRequest != null && !completeRequest.isDone()) completeRequest.cancel(true);
+        if (streamRequest != null && !streamRequest.isDone()) 
+            streamRequest.cancel(true);
+        if (completeRequest != null && !completeRequest.isDone()) 
+            completeRequest.cancel(true);
         if (currentInputStream != null) 
-        try { currentInputStream.close(); } catch (Exception ignore) {}
+
+        try { 
+            currentInputStream.close(); 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (streamReadingTask != null && !streamReadingTask.isDone()) streamReadingTask.cancel(true);
 
-        Platform.runLater(() -> { updateAIMessage("Petición cancelada."); resetUI(); });
+        Platform.runLater(() -> { updateAIMessage("Petición cancelada."); // pausa la peticion si cumple alguno de los if
+            resetUI(); 
+        });
     }
 
     // === Requests ===
@@ -149,15 +173,19 @@ public class Controller implements Initializable {
         HttpRequest request = HttpRequest.newBuilder() .uri(URI.create("http://localhost:11434/api/generate")).header("Content-Type", "application/json").POST(BodyPublishers.ofString(body.toString())).build();
 
         if (stream) {
-            streamRequest = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream())
+            streamRequest = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream()) //async envia peticion y su respuesta llega mas tarde  (sigue ejecutandose programa) callbacks bla bla lba
                 .thenApply(resp -> {
                     currentInputStream = resp.body();
                     streamReadingTask = executorService.submit(this::handleStreamResponse);
                     return resp;
-                }).exceptionally(e -> { if (!isCancelled.get()) e.printStackTrace(); Platform.runLater(this::resetUI); return null; });
+                }).exceptionally(e -> { if (!isCancelled.get()) e.printStackTrace(); 
+                    Platform.runLater(this::resetUI); 
+                    return null; 
+                });
         }
     }
 
+    // img requeeeeeest
     private void executeImageRequest(String model, String prompt, String base64Image) {
         JSONObject body = new JSONObject().put("model", model).put("prompt", prompt).put("images", new JSONArray().put(base64Image)).put("stream", false);
 
@@ -167,9 +195,14 @@ public class Controller implements Initializable {
                 String msg = tryParseAnyMessage(resp.body());
                 if (msg == null || msg.isBlank()) msg = "(respuesta vacía)";
                 final String toShow = msg;
-                Platform.runLater(() -> { updateAIMessage(toShow); resetUI(); });
+                Platform.runLater(() -> { updateAIMessage(toShow); 
+                    resetUI(); 
+                });
                 return resp;
-            }).exceptionally(e -> { if (!isCancelled.get()) e.printStackTrace(); Platform.runLater(() -> { updateAIMessage("Error en la petición."); resetUI(); }); return null; });
+            }).exceptionally(e -> { if (!isCancelled.get()) e.printStackTrace(); Platform.runLater(() -> { updateAIMessage("Error en la petición."); 
+            resetUI(); 
+        }); 
+        return null; });
     }
 
     private void handleStreamResponse() {
@@ -177,20 +210,28 @@ public class Controller implements Initializable {
             String line;
             StringBuilder aiResponse = new StringBuilder();
             while ((line = reader.readLine()) != null) {
-                if (isCancelled.get() || Thread.currentThread().isInterrupted()) break;
-                if (line.isBlank()) continue;
+                if (isCancelled.get() || Thread.currentThread().isInterrupted())
+                     break;
+                if (line.isBlank()) 
+                    continue;
                 JSONObject jsonResponse = new JSONObject(line);
                 String chunk = jsonResponse.optString("response", "");
-                if (chunk.isEmpty()) continue;
+                if (chunk.isEmpty()) 
+                    continue;
                 aiResponse.append(chunk);
                 final String currentResponse = aiResponse.toString();
                 Platform.runLater(() -> updateAIMessage(currentResponse));
             }
-        } catch (Exception e) { if (!isCancelled.get()) e.printStackTrace(); Platform.runLater(() -> updateAIMessage("Error durante streaming.")); }
-        finally { resetUI(); }
+        } catch (Exception e) { 
+            if (!isCancelled.get()) e.printStackTrace(); 
+            Platform.runLater(() -> updateAIMessage("Error durante streaming.")); 
+        }
+        finally { 
+            resetUI(); 
+        }
     }
 
-    // === UI Helpers ===
+    // interfaz bla bla bla 
     private void displayUserMessage(String message) {
         Platform.runLater(() -> {
             try {
@@ -216,7 +257,7 @@ public class Controller implements Initializable {
                 chatCtrl.setData("IETI", message, aiIcon);
                 responseBox.getChildren().add(node);
                 scrollPane.setVvalue(1.0);
-                lastAIMessage = chatCtrl; // Guardamos referencia al último mensaje AI
+                lastAIMessage = chatCtrl;
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -238,7 +279,7 @@ public class Controller implements Initializable {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/assets/chat.fxml"));
                 Node node = loader.load();
                 ChatController chatCtrl = loader.getController();
-                chatCtrl.setData("System", message, null); // Mensaje de sistema sin icono
+                chatCtrl.setData("System", message, null); // mensaje sistema
                 responseBox.getChildren().add(node);
                 scrollPane.setVvalue(1.0);
             } catch (Exception e) {
@@ -248,7 +289,7 @@ public class Controller implements Initializable {
     }
 
     private void resetUI() {
-        Platform.runLater(() -> btnStopResponse.setDisable(true)); // Desactiva el botón al terminar
+        Platform.runLater(() -> btnStopResponse.setDisable(true)); 
         streamRequest = null;
         completeRequest = null;
         selectedImageBase64 = null;
@@ -258,13 +299,19 @@ public class Controller implements Initializable {
     private String tryParseAnyMessage(String bodyStr) {
         try {
             JSONObject o = new JSONObject(bodyStr);
-            if (o.has("response")) return o.optString("response", "");
-            if (o.has("message"))  return o.optString("message", "");
-            if (o.has("error"))    return "Error: " + o.optString("error", "");
-        } catch (Exception ignore) {}
+            if (o.has("response")) 
+                return o.optString("response", "");
+            if (o.has("message"))  
+                return o.optString("message", "");
+            if (o.has("error"))    
+                return "Error: " + o.optString("error", "");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
+    // texto 
     private CompletableFuture<Void> ensureModelLoaded(String modelName) {
         HttpRequest req = HttpRequest.newBuilder().uri(URI.create("http://localhost:11434/api/ps")).GET().build();
 
@@ -276,7 +323,8 @@ public class Controller implements Initializable {
                     if (models != null) {
                         for (int i = 0; i < models.length(); i++) {
                             if (models.getJSONObject(i).optString("name", "").startsWith(modelName)) {
-                                loaded = true; break;
+                                loaded = true; 
+                                break;
                             }
                         }
                     }

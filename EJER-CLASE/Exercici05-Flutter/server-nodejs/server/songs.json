@@ -1,0 +1,162 @@
+[
+  {
+    "id": 1,
+    "name": "Heaven",
+    "artist": "Bryan Adamas",
+    "genre": "ROCK",
+    "coverURL": "http://0.0.0.0:3000/images/bohemian_rhapsody_cover.jpeg",
+    "favorite": true
+  },
+  {
+    "id": 2,
+    "name": "Bags",
+    "artist": "Clairo",
+    "genre": "POP",
+    "coverURL": "http://0.0.0.0:3000/images/blinding_lights_cover.jpeg",
+    "favorite": true
+  },
+  {
+    "id": 3,
+    "name": "CAMBIAR ESPAÑOL",
+    "artist": "Gustavo Cerati",
+    "genre": "ALTERNATIVE",
+    "coverURL": "http://0.0.0.0:3000/images/stressed_out_cover.jpeg",
+    "favorite": true
+  },
+  {
+    "id": 4,
+    "name": "Maroon",
+    "artist": "Taylor Swift",
+    "genre": "POP",
+    "coverURL": "http://0.0.0.0:3000/images/ghost_cover.jpeg",
+    "favorite": false
+  },
+  {
+    "id": 5,
+    "name": "Houdini",
+    "artist": "Foster The People",
+    "genre": "POP",
+    "coverURL": "http://0.0.0.0:3000/images/reptilia_cover.jpeg",
+    "favorite": true
+  },
+  {
+    "id": 6,
+    "name": "Wind Of Change",
+    "artist": "Scorpions",
+    "genre": "ROCK",
+    "coverURL": "http://0.0.0.0:3000/images/505_cover.jpeg",
+    "favorite": true
+  },
+  {
+    "id": 7,
+    "name": "meant to be",
+    "artist": "bbno$",
+    "genre": "POP",
+    "coverURL": "http://0.0.0.0:3000/images/meant_to_be_cover.jpeg",
+    "favorite": false
+  },
+  {
+    "id": 8,
+    "name": "Madrugada",
+    "artist": "Enjambre",
+    "genre": "ALTERNATIVE",
+    "coverURL": "http://0.0.0.0:3000/images/ongyilkos_vasarnap_cover.jpeg",
+    "favorite": false
+  },
+  {
+    "id": 9,
+    "name": "Risk",
+    "artist": "Gracie Abrams",
+    "genre": "POP",
+    "coverURL": "http://0.0.0.0:3000/images/the_fall_cover.jpeg",
+    "favorite": true
+  },
+  {
+    "id": 10,
+    "name": "Telecision / So Far So Good",
+    "artist": "Rex Orange County",
+    "genre": "INDIE",
+    "coverURL": "http://0.0.0.0:3000/images/milk_man_cover.jpeg",
+    "favorite": false
+  },
+  {
+    "id": 11,
+    "name": "Just Like Heaven",
+    "artist": "The Cure",
+    "genre": "ROCK",
+    "coverURL": "http://0.0.0.0:3000/images/pope_is_a_rockstar_cover.jpeg",
+    "favorite": false
+  },
+  {
+    "id": 12,
+    "name": "My Kink Is Karma",
+    "artist": "Chapell Roan",
+    "genre": "POP",
+    "coverURL": "http://0.0.0.0:3000/images/test_drive_cover.jpeg",
+    "favorite": false
+  },
+  {
+    "id": 13,
+    "name": "Heaven Knows Im Miserable Now",
+    "artist": "The Smiths",
+    "genre": "INDIE",
+    "coverURL": "http://0.0.0.0:3000/images/johannn_cover.jpeg",
+    "favorite": false
+  },
+  {
+    "id": 14,
+    "name": "Silver Lining",
+    "artist": "Laufey",
+    "genre": "POP",
+    "coverURL": "http://0.0.0.0:3000/images/body_and_mind_cover.jpeg",
+    "favorite": false
+  },
+  {
+    "id": 15,
+    "name": "A Side / B Side",
+    "artist": "Tipling Rock",
+    "genre": "INDIE",
+    "coverURL": "http://0.0.0.0:3000/images/cat_fantastic_cover.jpeg",
+    "favorite": false
+  },
+  {
+    "id": 16,
+    "name": "LUNCH",
+    "artist": "Billie Eilish",
+    "genre": "POP",
+    "coverURL": "http://0.0.0.0:3000/images/bury_a_friend_cover.jpeg",
+    "favorite": false
+  },
+  {
+    "id": 17,
+    "name": "Somewhere Only We Know",
+    "artist": "Keane",
+    "genre": "ROCK",
+    "coverURL": "http://0.0.0.0:3000/images/somewhere_only_we_know_cover.jpeg",
+    "favorite": true
+  },
+  {
+    "id": 18,
+    "name": "Money Game, Pt. 2",
+    "artist": "Ren",
+    "genre": "POP",
+    "coverURL": "http://0.0.0.0:3000/images/money_game_2_cover.jpeg",
+    "favorite": false
+  },
+  {
+    "id": 19,
+    "name": "Picturesque",
+    "artist": "Ichika Nito",
+    "genre": "ALTERNATIVE",
+    "coverURL": "http://0.0.0.0:3000/images/picturesque_cover.jpeg",
+    "favorite": false
+  },
+  {
+    "id": 20,
+    "name": "Rhinestone Eyes",
+    "artist": "Gorillaz",
+    "genre": "ALTERNATIVE",
+    "coverURL": "http://0.0.0.0:3000/images/rhinestone_eyes_cover.jpeg",
+    "favorite": false
+  }
+]

@@ -7,7 +7,7 @@ const port = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Continguts estàtics (carpeta public)
+// imagenes portada -> path ../public
 app.use('/images', express.static('public'))
 
 
@@ -28,10 +28,9 @@ app.get('/songs', (req, res) => {
     res.json(songs);
 });
 
-// Configurar direcció ‘/’ 
 app.get('/', getHello)
     async function getHello (req, res) {
-    res.send(`Hola món`);
+    res.send(`Holaa prueba sever todo OK`);
 }
 
 app.put('/songs/:id/favorite', (req, res) => {
@@ -50,15 +49,14 @@ app.put('/songs/:id/favorite', (req, res) => {
     res.json(songs[index]);
 })
 
-// Activar el servidor
+// Aserver on
 const httpServer = app.listen(port, appListen)
 function appListen () {
     console.log(`Example app listening on: http://0.0.0.0:${port}`)
 }
 
 
-
-// Aturar el servidor correctament 
+// apaga server
 process.on('SIGTERM', shutDown);
 process.on('SIGINT', shutDown);
 function shutDown() {

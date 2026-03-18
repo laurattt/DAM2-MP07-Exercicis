@@ -40,7 +40,7 @@ class Song {
   final String artist;
   final String genre;
   final String coverURL;
-  bool favorite;
+  bool likes;
 
   Song({
     required this.id,
@@ -48,7 +48,7 @@ class Song {
     required this.artist,
     required this.genre,
     required this.coverURL,
-    required this.favorite,
+    required this.likes,
   });
 
   factory Song.fromJson(Map<String, dynamic> json) {
@@ -58,7 +58,7 @@ class Song {
       artist: json['artist'],
       genre: json['genre'],
       coverURL: json['coverURL'],
-      favorite: json['favorite'],
+      likes: json['likes'],
     );
   }
 
@@ -67,7 +67,7 @@ class Song {
   }
 
   void switchFavorite() {
-    favorite = !favorite;
+    likes = !likes;
   }
 }
 
@@ -77,7 +77,7 @@ List<Song> getSongsOfGenre(List<Song> songs, String genre) {
   List<Song> result = [];
   for (var song in songs) {
     if (song.genre.toLowerCase() == genre.toLowerCase() ||
-        (song.favorite && genre == "Favorites")) {
+        (song.likes && genre == "Likes")) {
       result.add(song);
     }
   }
@@ -101,7 +101,7 @@ Future<void> toggleFavorite(Song song) async {
   final response = await http.put(
     url,
     headers: {"Content-Type": "application/json"},
-    body: jsonEncode({"favorite": song.favorite}),
+    body: jsonEncode({"likes": song.likes}),
   );
   if (response.statusCode == 200) {
     print("Updated: ${response.body}");
@@ -123,14 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Song> _songs = [];
   bool _isLoading = true;
   Song? _selectedSong;
-  List<String> opciones = [
-    "Likes",
-    "All",
-    "Pop",
-    "Rock",
-    "Alternative",
-    "Indie",
-  ];
+  List<String> opciones = ["Likes", "All", "Pop", "Rock", "Español", "Indie"];
   String activeGenre = "All";
   List<Song> _genreSongs = [];
   List<Song> _visibleSongs = [];
@@ -265,7 +258,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                               },
                                                               child:
                                                                   _selectedSong!
-                                                                      .favorite
+                                                                      .likes
                                                                   ? Icon(
                                                                       Icons
                                                                           .star,
@@ -433,7 +426,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     );
                                   });
                                 },
-                                child: _selectedSong!.favorite
+                                child: _selectedSong!.likes
                                     ? Icon(Icons.star, size: 50)
                                     : Icon(Icons.star_border, size: 50),
                               ),

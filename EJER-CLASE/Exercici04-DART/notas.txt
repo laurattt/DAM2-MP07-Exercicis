@@ -1,0 +1,2 @@
+
+1. la barrabaja en variables es lo mismo que = private int

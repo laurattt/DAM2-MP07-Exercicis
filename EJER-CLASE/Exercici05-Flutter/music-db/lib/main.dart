@@ -138,7 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       final response = await http.get(Uri.parse('http://localhost:3000/songs'));
       if (response.statusCode == 200) {
-        List<dynamic> data = jsonDecode(response.body);
+        List<dynamic> data = jsonDecode(response.body); // aqui extrae json
         setState(() {
           _songs = data.map((json) => Song.fromJson(json)).toList();
           _isLoading = false;
@@ -165,7 +165,7 @@ class _MyHomePageState extends State<MyHomePage> {
         builder: (context, constraints) {
           bool isMobile = constraints.maxWidth < 600;
 
-          if (isMobile) {
+          if (isMobile) { // formato de movil
             return Column(
               children: [
                 Padding(padding: EdgeInsets.all(8.0)),
@@ -294,7 +294,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
             );
-          } else {
+          } else { // formato desktop
             return Row(
               children: [
                 SizedBox(

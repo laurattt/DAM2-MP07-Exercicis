@@ -2,14 +2,19 @@ import 'dart:io';
 import 'dart:math';
 
 class Buscaminas {
+
+  // variables
   static const int filas = 6;
   static const int columnas = 10;
   static const int totalMinas = 8;
   
+  //matrices tablero
   late List<List<String>> tablero;
   late List<List<bool>> minas;
   late List<List<bool>> descubierto;
   late List<List<bool>> banderas;
+
+  // flags 
   bool gameOver = false;
   bool victoria = false;
   int tiradas = 0;
@@ -21,24 +26,26 @@ class Buscaminas {
   }
 
   void inicializar() {
-    tablero = List.generate(filas, (_) => List.filled(columnas, '·'));
-    minas = List.generate(filas, (_) => List.filled(columnas, false));
-    descubierto = List.generate(filas, (_) => List.filled(columnas, false));
-    banderas = List.generate(filas, (_) => List.filled(columnas, false));
+
+    // casillas + mina
+    tablero = List.generate(filas, (i) => List.filled(columnas, '·'));  
+    minas = List.generate(filas, (i) => List.filled(columnas, false)); // matriz de bools
+    descubierto = List.generate(filas, (i) => List.filled(columnas, false)); // estado de las casillas 
+    banderas = List.generate(filas, (i) => List.filled(columnas, false));
+
     gameOver = false;
     victoria = false;
     tiradas = 0;
     mostrarTrucos = false;
     
     generarMinas();
-    // Asegurar al menos 2 minas en cada cuadrante
-    forzarMinasPorCuadrante();
-  }
+    forzarMinasPorCuadrante(); // al menos 2 minas en cada cuadrante
+  } 
 
   void generarMinas() {
     int minasColocadas = 0;
     
-    while (minasColocadas < totalMinas) {
+    while (minasColocadas < totalMinas) { // 8 total minas
       int fila = random.nextInt(filas);
       int columna = random.nextInt(columnas);
       
@@ -50,14 +57,14 @@ class Buscaminas {
   }
 
   void forzarMinasPorCuadrante() {
-    // Definir los 4 cuadrantes
+    // divide el tablero en 4 zonas (2 minas por zona)
+
     // Cuadrante 1: [0,2] filas y [0,4] columnas
     // Cuadrante 2: [0,2] filas y [5,9] columnas
     // Cuadrante 3: [3,5] filas y [0,4] columnas
     // Cuadrante 4: [3,5] filas y [5,9] columnas
     
-    // Contar minas en cada cuadrante
-    Map<int, int> conteoMinas = {1: 0, 2: 0, 3: 0, 4: 0};
+    Map<int, int> conteoMinas = {1: 0, 2: 0, 3: 0, 4: 0}; // contador minas
     
     for (int f = 0; f < filas; f++) {
       for (int c = 0; c < columnas; c++) {
@@ -68,15 +75,13 @@ class Buscaminas {
       }
     }
     
-    // Asegurar al menos 2 minas en cada cuadrante
+    // 2 minas minim
     for (int cuadrante = 1; cuadrante <= 4; cuadrante++) {
       while ((conteoMinas[cuadrante] ?? 0) < 2) {
-        // Obtener posición aleatoria en el cuadrante
-        var pos = obtenerPosicionEnCuadrante(cuadrante);
+        var pos = obtenerPosicionEnCuadrante(cuadrante); // posicion aleatoria en el cuadrante
         int f = pos[0], c = pos[1];
         
-        if (!minas[f][c]) {
-          // Quitar una mina de otro cuadrante que tenga más de 2
+        if (!minas[f][c]) { // si un cuadrante tiene + de 2 minas, quitar
           for (int otroCuadrante = 1; otroCuadrante <= 4; otroCuadrante++) {
             if (otroCuadrante != cuadrante && (conteoMinas[otroCuadrante] ?? 0) > 2) {
               for (int ff = 0; ff < filas; ff++) {
@@ -97,8 +102,7 @@ class Buscaminas {
             }
           }
           
-          if (!minas[f][c]) {
-            // Si no se pudo quitar de otro, simplemente agregar una nueva
+          if (!minas[f][c]) { // si no se pudo quitar de otro agregar 1 nueva
             minas[f][c] = true;
             conteoMinas[cuadrante] = (conteoMinas[cuadrante] ?? 0) + 1;
           }
@@ -111,9 +115,12 @@ class Buscaminas {
     bool primeraMitadFilas = fila <= 2; // 0-2
     bool primeraMitadColumnas = columna <= 4; // 0-4
     
-    if (primeraMitadFilas && primeraMitadColumnas) return 1;
-    if (primeraMitadFilas && !primeraMitadColumnas) return 2;
-    if (!primeraMitadFilas && primeraMitadColumnas) return 3;
+    if (primeraMitadFilas && primeraMitadColumnas) 
+        return 1;
+    if (primeraMitadFilas && !primeraMitadColumnas) 
+        return 2;
+    if (!primeraMitadFilas && primeraMitadColumnas) 
+        return 3;
     return 4; // !primeraMitadFilas && !primeraMitadColumnas
   }
 
@@ -127,12 +134,14 @@ class Buscaminas {
     }
   }
 
-  int contarMinasAdyacentes(int fila, int columna) {
+  int contarMinasAdyacentes(int fila, int columna) { // ?????????????????????????????
     int count = 0;
     
+    // recorre las 8 casillas y cuenta num de minas
     for (int df = -1; df <= 1; df++) {
       for (int dc = -1; dc <= 1; dc++) {
-        if (df == 0 && dc == 0) continue;
+        if (df == 0 && dc == 0) 
+            continue;
         
         int nf = fila + df;
         int nc = columna + dc;
@@ -149,45 +158,45 @@ class Buscaminas {
   }
 
   bool destaparCasilla(int fila, int columna, bool esPrimeraJugada, bool esJugadaUsuario) {
-    // Verificar límites
+    // limites tablero check
     if (fila < 0 || fila >= filas || columna < 0 || columna >= columnas) {
       return false;
     }
     
-    // Verificar si ya está descubierta o tiene bandera
+    // descubierta o con flag check
     if (descubierto[fila][columna] || banderas[fila][columna]) {
       return false;
     }
     
-    // Verificar si es mina
+    // es mina?
     if (minas[fila][columna]) {
       if (esPrimeraJugada) {
-        // Mover la mina a una posición vacía
-        moverMina(fila, columna);
+        moverMina(fila, columna);   // si hay mina en primera jugada, mover a otra casilla
         return destaparCasilla(fila, columna, false, false);
       } else if (esJugadaUsuario) {
-        return true; // Explota
+        return true; // boom
       } else {
-        return false; // No explota durante recursividad
+        return false; // no boom
       }
     }
     
-    // Contar minas adyacentes
+    // minas adyacentes ?.
     int numMinas = contarMinasAdyacentes(fila, columna);
     descubierto[fila][columna] = true;
     
-    // Actualizar tablero
+    // tablero reload
     if (numMinas == 0) {
       tablero[fila][columna] = ' ';
     } else {
       tablero[fila][columna] = numMinas.toString();
     }
     
-    // Si no hay minas adyacentes, destapar recursivamente
+    // Si no hay minas adyacentes, destapar recursivamente --> ?????????????????
     if (numMinas == 0) {
       for (int df = -1; df <= 1; df++) {
         for (int dc = -1; dc <= 1; dc++) {
-          if (df == 0 && dc == 0) continue;
+          if (df == 0 && dc == 0) 
+             continue;
           
           int nf = fila + df;
           int nc = columna + dc;
@@ -197,14 +206,14 @@ class Buscaminas {
       }
     }
     
-    return false; // No explota
+    return false;
   }
 
+  // mover mina por primera jugada
   void moverMina(int filaOriginal, int columnaOriginal) {
     minas[filaOriginal][columnaOriginal] = false;
-    
-    // Buscar una posición vacía
-    while (true) {
+  
+    while (true) { // buscador pos vacia
       int f = random.nextInt(filas);
       int c = random.nextInt(columnas);
       
@@ -215,6 +224,7 @@ class Buscaminas {
     }
   }
 
+  // tablero print
   void mostrarTablero() {
     print('\n 0123456789');
     
@@ -235,6 +245,7 @@ class Buscaminas {
     }
   }
 
+  // tablero trampas?
   void mostrarTableroCompleto() {
     print('\n 0123456789');
     
@@ -265,7 +276,7 @@ class Buscaminas {
       String filaMinas = String.fromCharCode('A'.codeUnitAt(0) + f);
       
       for (int c = 0; c < columnas; c++) {
-        // Tablero de juego
+        // tab de juego
         if (banderas[f][c]) {
           filaJuego += '#';
         } else if (!descubierto[f][c]) {
@@ -274,7 +285,7 @@ class Buscaminas {
           filaJuego += tablero[f][c];
         }
         
-        // Tablero de minas
+        // tab de minas
         if (minas[f][c]) {
           filaMinas += '*';
         } else if (banderas[f][c]) {
@@ -292,7 +303,7 @@ class Buscaminas {
 
   void toggleBandera(int fila, int columna) {
     if (descubierto[fila][columna]) {
-      print('No se puede poner bandera en casilla descubierta.');
+      print('No se puede poner bandera en casilla descubierta');
       return;
     }
     
@@ -302,7 +313,7 @@ class Buscaminas {
   bool verificarVictoria() {
     for (int f = 0; f < filas; f++) {
       for (int c = 0; c < columnas; c++) {
-        // Si hay una mina sin bandera o una casilla sin mina sin descubrir
+        // si hay una mina sin bandera o una casilla sin mina sin descubrir
         if ((minas[f][c] && !banderas[f][c]) || (!minas[f][c] && !descubierto[f][c])) {
           return false;
         }
@@ -318,17 +329,17 @@ class Buscaminas {
       return;
     }
     
-    // Ayuda
+    // comandos ayuda
     if (comando.toLowerCase() == 'help' || comando.toLowerCase() == 'ayuda') {
-      print('\n=== COMANDOS DISPONIBLES ===');
-      print('• Seleccionar casilla: Letra + Número (ej: B2, D5)');
-      print('• Poner/Quitar bandera: Casilla + "flag" o "bandera" (ej: E1 flag)');
-      print('• Mostrar trucos: "cheat" o "trampas"');
-      print('• Ayuda: "help" o "ayuda"');
+      print('\n------ COMANDOS DISPONIBLES ------\n');
+      print('- Seleccionar casilla: Letra + Número (ej: B2, D5)');
+      print('- Poner/Quitar bandera: Casilla + "flag" o "bandera" (ej: E1 flag)');
+      print('- Mostrar trucos: "cheat" o "trampas"');
+      print('- Ayuda: "help" o "ayuda"');
       return;
     }
     
-    // Trucos
+    // trampas
     if (comando.toLowerCase() == 'cheat' || comando.toLowerCase() == 'trampas') {
       mostrarTrucos = !mostrarTrucos;
       if (mostrarTrucos) {
@@ -339,7 +350,7 @@ class Buscaminas {
       return;
     }
     
-    // Verificar si es una casilla con bandera
+    // casilla con bandera check
     var partes = comando.split(' ');
     if (partes.length == 2) {
       String posicion = partes[0];
@@ -391,13 +402,13 @@ class Buscaminas {
             if (explosion) {
               gameOver = true;
               mostrarTableroCompleto();
-              print('\n¡Has perdido!');
+              print('\nHas perdido');
               print('Número de tiradas: $tiradas');
             } else {
               if (verificarVictoria()) {
                 victoria = true;
                 mostrarTablero();
-                print('\n¡Has ganado!');
+                print('\nHas ganado');
                 print('Número de tiradas: $tiradas');
               } else if (mostrarTrucos) {
                 mostrarAmbosTableros();
@@ -406,7 +417,7 @@ class Buscaminas {
               }
             }
           } else {
-            // Destapar normal
+            // destapar normal
             tiradas++;
             bool explosion = destaparCasilla(fila, columna, tiradas == 1, true);
             
@@ -445,7 +456,7 @@ class Buscaminas {
     mostrarTablero();
     
     while (!gameOver && !victoria) {
-      stdout.write('\nEscriu una comanda: ');
+      stdout.write('\Escribe un comando: ');
       String comando = stdin.readLineSync() ?? '';
       procesarComando(comando);
     }

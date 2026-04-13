@@ -1,2 +1,7 @@
 
 1. la barrabaja en variables es lo mismo que = private int
+
+    mi tablero coord
+    (-1,-1) (-1,0) (-1,1)
+    ( 0,-1) ( 0,0) ( 0,1)
+    ( 1,-1) ( 1,0) ( 1,1)

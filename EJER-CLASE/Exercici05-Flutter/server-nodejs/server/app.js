@@ -13,43 +13,43 @@ app.use('/images', express.static('public'))
 
 const SONGS_PATH = path.join(__dirname, "songs.json");
 
-function loadSongs() {
+function loadSongs() { // devuelve lista de canciones
     return JSON.parse(fs.readFileSync(SONGS_PATH, "utf-8"));
 
 }
 
-function saveSongs(songs) {
+function saveSongs(songs) { // guarda cancion dentro de json (reescribe cambios like o no like)
     fs.writeFileSync(SONGS_PATH, JSON.stringify(songs, null, 2));
 }
 
-
-app.get('/songs', (req, res) => {
+app.get('/songs', (req, res) => { // devuelve todas las canciones
     const songs = loadSongs();
     res.json(songs);
 });
 
-app.get('/', getHello)
+app.get('/', getHello) // pruebaaaaaa zzzzz
     async function getHello (req, res) {
     res.send(`Holaa prueba sever todo OK`);
 }
 
-app.put('/songs/:id/favorite', (req, res) => {
+// put reemplaza una representacion existente
+app.put('/songs/:id/favorite', (req, res) => { // actualiza si una canciones like o no 
     const songId = Number(req.params.id);
     console.log(req.body);
     const { favorite } = req.body
 
     let songs = loadSongs();
 
-    const index = songs.findIndex(s => s.id === songId);
+    const index = songs.findIndex(s => s.id === songId); // recupera id 
 
-    songs[index].favorite = Boolean(favorite);
+    songs[index].favorite = Boolean(favorite); // bool si es favorito   
 
     saveSongs(songs);
 
     res.json(songs[index]);
 })
 
-// Aserver on
+// server on
 const httpServer = app.listen(port, appListen)
 function appListen () {
     console.log(`Example app listening on: http://0.0.0.0:${port}`)
@@ -64,3 +64,5 @@ function shutDown() {
     httpServer.close()
     process.exit(0);
 }
+
+// diferencia con post -> se usa para enviar datos a servidor

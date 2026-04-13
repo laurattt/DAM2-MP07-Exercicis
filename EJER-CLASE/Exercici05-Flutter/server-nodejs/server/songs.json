@@ -29,7 +29,8 @@
     "artist": "Taylor Swift",
     "genre": "POP",
     "coverURL": "http://0.0.0.0:3000/images/maroon_cov.jpeg",
-    "likes": false
+    "likes": false,
+    "favorite": false
   },
   {
     "id": 5,
@@ -61,7 +62,8 @@
     "artist": "Enjambre",
     "genre": "ESPAÑOL",
     "coverURL": "http://0.0.0.0:3000/images/madrugada_cov.jpeg",
-    "likes": false
+    "likes": false,
+    "favorite": false
   },
   {
     "id": 9,

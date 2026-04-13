@@ -52,6 +52,7 @@ class Song {
   });
 
   factory Song.fromJson(Map<String, dynamic> json) {
+    // convierte objeto json en clase song (mappp)
     return Song(
       id: json['id'],
       name: json['name'],
@@ -67,7 +68,7 @@ class Song {
   }
 
   void switchFavorite() {
-    likes = !likes;
+    likes = !likes; // true - false
   }
 }
 
@@ -97,10 +98,13 @@ List<Song> getFilteredSearchSongs(List<Song> songs, String search) {
 }
 
 Future<void> toggleFavorite(Song song) async {
+  // envia peticion a server para recibir favoritos
   final url = Uri.parse("http://0.0.0.0:3000/songs/${song.id}/favorite");
   final response = await http.put(
     url,
-    headers: {"Content-Type": "application/json"},
+    headers: {
+      "Content-Type": "application/json",
+    }, // de json detecta si tiene like
     body: jsonEncode({"likes": song.likes}),
   );
   if (response.statusCode == 200) {
@@ -119,11 +123,114 @@ class Styler {
       const Color.fromARGB(255, 106, 49, 211);
 }
 
+// Widget reutilizable para el botón de favorito con animación de corazón
+class FavoriteButton extends StatefulWidget {
+  final bool liked;
+  final VoidCallback onTap;
+
+  const FavoriteButton({super.key, required this.liked, required this.onTap});
+
+  @override
+  State<FavoriteButton> createState() => _FavoriteButtonState();
+}
+
+class _FavoriteButtonState extends State<FavoriteButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    // animación de pop: crece y luego vuelve
+    _scale = TweenSequence([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.35), weight: 40),
+      TweenSequenceItem(tween: Tween(begin: 1.35, end: 0.9), weight: 30),
+      TweenSequenceItem(tween: Tween(begin: 0.9, end: 1.0), weight: 30),
+    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    _controller.forward(from: 0); // dispara animación
+    widget.onTap();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _handleTap,
+      child: AnimatedBuilder(
+        animation: _scale,
+        builder: (context, child) =>
+            Transform.scale(scale: _scale.value, child: child),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          decoration: BoxDecoration(
+            color: widget.liked
+                ? const Color(0xFFFFE4E6) // rojo claro si tiene like
+                : Colors.transparent,
+            border: Border.all(
+              color: widget.liked
+                  ? const Color(0xFFF87171) // borde rojo
+                  : Colors.grey.shade400,
+              width: 1.5,
+            ),
+            borderRadius: BorderRadius.circular(50),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                widget.liked ? Icons.favorite : Icons.favorite_border,
+                color: widget.liked
+                    ? const Color(0xFFEF4444) // corazón rojo
+                    : Colors.grey.shade500,
+                size: 22,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "Me gusta",
+                style: TextStyle(
+                  color: widget.liked
+                      ? const Color(0xFFB91C1C) // texto rojo oscuro
+                      : Colors.grey.shade600,
+                  fontWeight: widget.liked
+                      ? FontWeight.w600
+                      : FontWeight.normal,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   List<Song> _songs = [];
   bool _isLoading = true;
   Song? _selectedSong;
-  List<String> opciones = ["Likes", "All", "Pop", "Rock", "Español", "Indie"];
+  List<String> opciones = [
+    "Likes",
+    "All",
+    "Pop",
+    "Rock",
+    "Español",
+    "Indie",
+  ]; // desplegable
   String activeGenre = "All";
   List<Song> _genreSongs = [];
   List<Song> _visibleSongs = [];
@@ -135,12 +242,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _fetchSongs() async {
+    // peticion get para obtener lista de canciones
     try {
       final response = await http.get(Uri.parse('http://localhost:3000/songs'));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body); // aqui extrae json
         setState(() {
-          _songs = data.map((json) => Song.fromJson(json)).toList();
+          _songs = data
+              .map((json) => Song.fromJson(json))
+              .toList(); // map con las canciones del json
           _isLoading = false;
           _visibleSongs = _songs;
         });
@@ -163,9 +273,11 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          bool isMobile = constraints.maxWidth < 600;
+          bool isMobile =
+              constraints.maxWidth < 600; // detecta si es movil segun medidas
 
-          if (isMobile) { // formato de movil
+          if (isMobile) {
+            // formato de movil
             return Column(
               children: [
                 Padding(padding: EdgeInsets.all(8.0)),
@@ -235,8 +347,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                                               _selectedSong!
                                                                   .artist,
                                                             ),
-                                                            ElevatedButton(
-                                                              onPressed: () {
+                                                            const SizedBox(
+                                                              height: 16,
+                                                            ),
+                                                            // botón de favorito con animación
+                                                            FavoriteButton(
+                                                              liked:
+                                                                  _selectedSong!
+                                                                      .likes,
+                                                              onTap: () {
                                                                 setLocalState(
                                                                   () {},
                                                                 );
@@ -256,19 +375,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                                                       );
                                                                 });
                                                               },
-                                                              child:
-                                                                  _selectedSong!
-                                                                      .likes
-                                                                  ? Icon(
-                                                                      Icons
-                                                                          .star,
-                                                                      size: 50,
-                                                                    )
-                                                                  : Icon(
-                                                                      Icons
-                                                                          .star_border,
-                                                                      size: 50,
-                                                                    ),
                                                             ),
                                                           ],
                                                         ),
@@ -294,7 +400,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
             );
-          } else { // formato desktop
+          } else {
+            // formato desktop
             return Row(
               children: [
                 SizedBox(
@@ -411,8 +518,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                 _selectedSong!.genre,
                                 style: TextStyle(fontStyle: FontStyle.italic),
                               ),
-                              ElevatedButton(
-                                onPressed: () {
+                              const SizedBox(height: 16),
+                              // botón de favorito con animación
+                              FavoriteButton(
+                                liked: _selectedSong!.likes,
+                                onTap: () {
                                   setState(() {
                                     _selectedSong!.switchFavorite();
                                     toggleFavorite(_selectedSong!);
@@ -426,9 +536,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                     );
                                   });
                                 },
-                                child: _selectedSong!.likes
-                                    ? Icon(Icons.star, size: 50)
-                                    : Icon(Icons.star_border, size: 50),
                               ),
                             ],
                           ),

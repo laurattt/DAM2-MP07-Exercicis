@@ -99,11 +99,13 @@ class Buscaminas {
         int fila = posicion[0], columna = posicion[1];
 
         if (!tieneMina[fila][columna]) {
-          // si un cuadrante tiene + de 2 minas, quitar
+          // actua si la casilla esta libre
           for (int otroCuadrante = 1; otroCuadrante <= 4; otroCuadrante++) {
             if (otroCuadrante != cuadrante &&
                 (minasPorCuadrante[otroCuadrante] ?? 0) > 2) {
+              // busca cuadrante con varias minas
               for (int filaAux = 0; filaAux < numFilas; filaAux++) {
+                // busca las mina anterior
                 for (
                   int columnaAux = 0;
                   columnaAux < numColumnas;
@@ -111,7 +113,8 @@ class Buscaminas {
                 ) {
                   if (tieneMina[filaAux][columnaAux] &&
                       obtenerCuadrante(filaAux, columnaAux) == otroCuadrante) {
-                    tieneMina[filaAux][columnaAux] = false;
+                    tieneMina[filaAux][columnaAux] =
+                        false; // quita mina del cuadrante
                     minasPorCuadrante[otroCuadrante] =
                         (minasPorCuadrante[otroCuadrante] ?? 0) - 1;
 
@@ -122,14 +125,15 @@ class Buscaminas {
                     break;
                   }
                 }
-                if (tieneMina[fila][columna]) break;
+                if (tieneMina[fila][columna]) // si ya hay mina puesta en cuadrante, stop
+                  break;
               }
               break;
             }
           }
 
           if (!tieneMina[fila][columna]) {
-            // si no se pudo quitar de otro agregar 1 nueva
+            // si no encuentra mas de 2 minas , agg
             tieneMina[fila][columna] = true;
             minasPorCuadrante[cuadrante] =
                 (minasPorCuadrante[cuadrante] ?? 0) + 1;
@@ -146,10 +150,11 @@ class Buscaminas {
     if (mitadSuperior && mitadIzquierda) return 1;
     if (mitadSuperior && !mitadIzquierda) return 2;
     if (!mitadSuperior && mitadIzquierda) return 3;
-    return 4; // !mitadSuperior && !mitadIzquierda
+    return 4;
   }
 
   List<int> obtenerPosicionEnCuadrante(int cuadrante) {
+    // posiciones random para poner mina
     switch (cuadrante) {
       case 1:
         return [azar.nextInt(3), azar.nextInt(5)];
@@ -188,6 +193,7 @@ class Buscaminas {
             filaVecina < numFilas &&
             columnaVecina >= 0 &&
             columnaVecina < numColumnas) {
+          // limites tablero
           if (tieneMina[filaVecina][columnaVecina]) {
             cantidad++;
           }
@@ -252,8 +258,10 @@ class Buscaminas {
           desplazamientoColumna <= 1;
           desplazamientoColumna++
         ) {
-          if (desplazamientoFila == 0 && desplazamientoColumna == 0)
-            continue; // evita posicion casilla
+          if (desplazamientoFila == 0 &&
+              desplazamientoColumna ==
+                  0) // si estoy en la misma casilla, ignorar
+            continue;
 
           int filaVecina = fila + desplazamientoFila; // nueva fila
           int columnaVecina = columna + desplazamientoColumna; // nueva columna
@@ -304,7 +312,7 @@ class Buscaminas {
     }
   }
 
-  // tablero trampas?
+  // tablero trampas
   void mostrarTableroCompleto() {
     print('\n 0123456789');
 
@@ -360,7 +368,7 @@ class Buscaminas {
     }
   }
 
-  void toggleBandera(int fila, int columna) {
+  void noBanderaEnCasillaDescubierta(int fila, int columna) {
     if (estaRevelada[fila][columna]) {
       print('No se puede poner bandera en casilla descubierta');
       return;
@@ -433,7 +441,7 @@ class Buscaminas {
               columna >= 0 &&
               columna < numColumnas) {
             if (accion == 'flag' || accion == 'bandera') {
-              toggleBandera(fila, columna);
+              noBanderaEnCasillaDescubierta(fila, columna);
               if (modoTrampa) {
                 mostrarAmbosTableros();
               } else {

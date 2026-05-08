@@ -1,4 +1,11 @@
 // Defines the tools/functions available in Flutter
+
+//function callsss (funcioens que puede llamar y con que campos)
+// sirve para que la ia no responda con texto, sino directamente
+//      Usuario: "dibuja un círculo rojo"
+//      Modelo: { "name": "draw_circle", "arguments": { "x": 100, "y": 100, "radius": 20, "color": "red" } }
+//      app recibe ese JSON y ejecuta el código real
+
 const tools = [
   {
     "type": "function",
@@ -16,12 +23,12 @@ const tools = [
           "strokeWidth": {"type": "number"},
           "gradientColors": {
             "type": "array",
-            "items": {"type": "string"}
-          }
+            "items": {"type": "string"},
+          },
         },
-        "required": ["x", "y", "radius"]
-      }
-    }
+        "required": ["x", "y", "radius"],
+      },
+    },
   },
   {
     "type": "function",
@@ -37,11 +44,11 @@ const tools = [
           "endX": {"type": "number"},
           "endY": {"type": "number"},
           "color": {"type": "string"},
-          "strokeWidth": {"type": "number"}
+          "strokeWidth": {"type": "number"},
         },
-        "required": ["startX", "startY", "endX", "endY"]
-      }
-    }
+        "required": ["startX", "startY", "endX", "endY"],
+      },
+    },
   },
   {
     "type": "function",
@@ -60,19 +67,19 @@ const tools = [
           "strokeWidth": {"type": "number"},
           "gradientColors": {
             "type": "array",
-            "items": {"type": "string"}
-          }
+            "items": {"type": "string"},
+          },
         },
-        "required": ["topLeftX", "topLeftY", "bottomRightX", "bottomRightY"]
-      }
-    }
+        "required": ["topLeftX", "topLeftY", "bottomRightX", "bottomRightY"],
+      },
+    },
   },
   {
     "type": "function",
     "function": {
       "name": "draw_text",
       "description":
-        "Draw a text string at a specified position. You can specify the color as a string (e.g., 'red', 'blue', 'green', etc.), font size, font weight (e.g., 'bold', 'normal', 'light'), and font style (e.g., 'italic', 'normal').",
+          "Draw a text string at a specified position. You can specify the color as a string (e.g., 'red', 'blue', 'green', etc.), font size, font weight (e.g., 'bold', 'normal', 'light'), and font style (e.g., 'italic', 'normal').",
       "parameters": {
         "type": "object",
         "properties": {
@@ -82,10 +89,10 @@ const tools = [
           "color": {"type": "string"},
           "fontSize": {"type": "number"},
           "fontWeight": {"type": "string"},
-          "fontStyle": {"type": "string"}
+          "fontStyle": {"type": "string"},
         },
-        "required": ["text", "x", "y"]
-      }
-    }
-  }
+        "required": ["text", "x", "y"],
+      },
+    },
+  },
 ];

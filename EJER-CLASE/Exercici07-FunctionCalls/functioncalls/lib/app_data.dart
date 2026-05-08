@@ -8,36 +8,42 @@ import 'package:http/io_client.dart';
 import 'constants.dart';
 import 'drawable.dart';
 
-const streamingModel = 'qwen2.5:3b'; //'granite4:3b';
-const functionCallingModel = 'qwen2.5:3b'; //'granite4:3b';
-const jsonFixModel = 'qwen2.5:3b'; //'granite4:3b';
-
-// Funcionamiento de pasar el tamaño del canvas, cambiar el color, el radio, etc.
+const streamingModel = 'granite3.3:2b';
+const functionCallingModel = 'granite3.3:2b';
+const jsonFixModel = 'granite3.3:2b';
 
 class AppData extends ChangeNotifier {
-  String _responseText = "";
+  String _responseText = ""; // ia rta
+
+  // texto que aparece en la ui
   bool _isLoading = false;
   bool _isInitial = true;
+
+  //para llamadas a la api (ollama local)
   http.Client? _client;
   IOClient? _ioClient;
   HttpClient? _httpClient;
+
+  // streaming bla bla bla
   StreamSubscription<String>? _streamSubscription;
   int? _selectedShapeIndex;
 
+  //dimensiones canvas
   double canvasWidth = 0;
   double canvasHeight = 0;
 
+  // lista de figuras bla bla bla
   final List<Drawable> drawables = [];
 
   String get responseText =>
-      _isInitial ? "..." : (_isLoading ? "Esperant ..." : _responseText);
+      _isInitial ? "..." : (_isLoading ? "Esperando" : _responseText); //
 
   bool get isLoading => _isLoading;
   int? get selectedShapeIndex => _selectedShapeIndex;
   Drawable? get selectedShape =>
       _selectedShapeIndex != null && _selectedShapeIndex! < drawables.length
-          ? drawables[_selectedShapeIndex!]
-          : null;
+      ? drawables[_selectedShapeIndex!]
+      : null;
 
   AppData() {
     _httpClient = HttpClient();
@@ -70,17 +76,20 @@ class AppData extends ChangeNotifier {
   }
 
   void deleteSelectedShape() {
-    if (_selectedShapeIndex != null && _selectedShapeIndex! < drawables.length) {
+    if (_selectedShapeIndex != null &&
+        _selectedShapeIndex! < drawables.length) {
       drawables.removeAt(_selectedShapeIndex!);
       _selectedShapeIndex = null;
       notifyListeners();
     }
   }
 
+  //
   void updateShapeProperty(int index, String property, dynamic value) {
     if (index >= 0 && index < drawables.length) {
       final shape = drawables[index];
-      
+
+      // detalles para dibuajr circulo aqui
       if (shape is Circle) {
         switch (property) {
           case 'x':
@@ -130,6 +139,7 @@ class AppData extends ChangeNotifier {
             break;
         }
       } else if (shape is Rectangle) {
+        // detalles para dibuajr rectangulo aqui
         switch (property) {
           case 'topLeftX':
             drawables[index] = Rectangle(
@@ -187,6 +197,7 @@ class AppData extends ChangeNotifier {
             break;
         }
       } else if (shape is Line) {
+        // detalles para dibuajr linea aqui
         switch (property) {
           case 'startX':
             drawables[index] = Line(
@@ -311,10 +322,14 @@ class AppData extends ChangeNotifier {
     if (dx == 0 && dy == 0) {
       return (point - start).distance;
     }
-    final t = ((point.dx - start.dx) * dx + (point.dy - start.dy) * dy) /
+    final t =
+        ((point.dx - start.dx) * dx + (point.dy - start.dy) * dy) /
         (dx * dx + dy * dy);
     final t_clamped = t.clamp(0.0, 1.0);
-    final closest = Offset(start.dx + t_clamped * dx, start.dy + t_clamped * dy);
+    final closest = Offset(
+      start.dx + t_clamped * dx,
+      start.dy + t_clamped * dy,
+    );
     return (point - closest).distance;
   }
 
@@ -328,6 +343,7 @@ class AppData extends ChangeNotifier {
     deselectShape();
   }
 
+  //aqui solo streaming de texto
   Future<void> callStream({required String question}) async {
     _isInitial = false;
     setLoading(true);
@@ -339,28 +355,36 @@ class AppData extends ChangeNotifier {
       );
 
       request.headers.addAll({'Content-Type': 'application/json'});
-      request.body = jsonEncode(
-          {'model': streamingModel, 'prompt': question, 'stream': true});
+      request.body = jsonEncode({
+        'model': streamingModel,
+        'prompt': question,
+        'stream': true,
+      });
 
       var streamedResponse = await _client!.send(request);
-      _streamSubscription =
-          streamedResponse.stream.transform(utf8.decoder).listen((value) {
-        var jsonResponse = jsonDecode(value);
-        var jsonResponseStr = jsonResponse['response'];
-        _responseText = "$_responseText\n$jsonResponseStr";
-        notifyListeners();
-      }, onError: (error) {
-        if (error is http.ClientException &&
-            error.message == 'Connection closed while receiving data') {
-          _responseText += "\nRequest cancelled.";
-        } else {
-          _responseText += "\nError during streaming: $error";
-        }
-        setLoading(false);
-        notifyListeners();
-      }, onDone: () {
-        setLoading(false);
-      });
+      _streamSubscription = streamedResponse.stream
+          .transform(utf8.decoder)
+          .listen(
+            (value) {
+              var jsonResponse = jsonDecode(value);
+              var jsonResponseStr = jsonResponse['response'];
+              _responseText = "$_responseText\n$jsonResponseStr";
+              notifyListeners();
+            },
+            onError: (error) {
+              if (error is http.ClientException &&
+                  error.message == 'Connection closed while receiving data') {
+                _responseText += "\nRequest cancelled.";
+              } else {
+                _responseText += "\nError during streaming: $error";
+              }
+              setLoading(false);
+              notifyListeners();
+            },
+            onDone: () {
+              setLoading(false);
+            },
+          );
     } catch (e) {
       _responseText = "\nError during streaming.";
       setLoading(false);
@@ -384,7 +408,7 @@ class AppData extends ChangeNotifier {
       }
 
       try {
-        // Si és JSON dins d'una cadena, el deserialitzem
+        // Si es JSON dentro de una cadena, lo deserializamos
         final parsed = jsonDecode(data);
         return fixJsonInStrings(parsed);
       } catch (_) {
@@ -395,11 +419,11 @@ class AppData extends ChangeNotifier {
           }
         }
 
-        // Si no és JSON o no es pot reparar, retornem la cadena tal qual
+        // Si no es JSON o no se puede reparar, retornamos la cadena tal cual
         return data;
       }
     }
-    // Retorna qualsevol altre tipus sense canvis (números, booleans, etc.)
+    // Retorna cualquier otro tipo sin cambios (números, booleanos, etc.)
     return data;
   }
 
@@ -419,14 +443,14 @@ class AppData extends ChangeNotifier {
         {
           "role": "system",
           "content":
-              "You repair malformed JSON. Return only valid JSON that preserves the original intent and values as closely as possible."
+              "You repair malformed JSON. Return only valid JSON that preserves the original intent and values as closely as possible.",
         },
         {
           "role": "user",
           "content":
-              "Repair this malformed JSON and return only the fixed JSON:\n$rawJson"
-        }
-      ]
+              "Repair this malformed JSON and return only the fixed JSON:\n$rawJson",
+        },
+      ],
     };
 
     try {
@@ -467,29 +491,34 @@ class AppData extends ChangeNotifier {
   }
 
   Future<void> callWithCustomTools({required String userPrompt}) async {
-    const apiUrl = 'http://localhost:11434/api/chat';
+    const apiUrl = 'http://localhost:11434/api/chat'; // modelo ollama
     _isInitial = false;
     setLoading(true);
 
     // include canvas size info in system message
-    final sizeInfo = "Canvas size: width=${canvasWidth.toStringAsFixed(1)}, height=${canvasHeight.toStringAsFixed(1)}.";
+    final sizeInfo =
+        "Canvas size: width=${canvasWidth.toStringAsFixed(1)}, height=${canvasHeight.toStringAsFixed(1)}.";
 
+    // envia el prompt del usuario +
     final body = {
       "model": functionCallingModel,
       "stream": false,
       "messages": [
         {"role": "system", "content": sizeInfo},
-        {"role": "user", "content": userPrompt}
+        {"role": "user", "content": userPrompt},
       ],
-      "tools": tools
+      "tools": tools,
     };
 
+    //espera como respuesta lo que debe dibujar
     try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(body),
-      ).timeout(const Duration(seconds: 120));
+      final response = await http
+          .post(
+            Uri.parse(apiUrl),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 120));
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
@@ -629,6 +658,7 @@ class AppData extends ChangeNotifier {
     return min + Random().nextDouble() * (max - min);
   }
 
+  // functions caaaaalss
   Future<void> _processFunctionCall(Map<String, dynamic> functionCall) async {
     final fixedJson = await fixJsonInStrings(functionCall);
     final parametersData = fixedJson['arguments'];
@@ -642,12 +672,15 @@ class AppData extends ChangeNotifier {
     print(infoText);
     _responseText = "$_responseText\n$infoText";
 
+    // definido en json del constants.dart
     switch (name) {
       case 'draw_circle':
-        final dx =
-            parameters['x'] != null ? parseDouble(parameters['x']) : 50.0;
-        final dy =
-            parameters['y'] != null ? parseDouble(parameters['y']) : 50.0;
+        final dx = parameters['x'] != null
+            ? parseDouble(parameters['x'])
+            : 50.0;
+        final dy = parameters['y'] != null
+            ? parseDouble(parameters['y'])
+            : 50.0;
         final radius = parameters['radius'] != null
             ? parseDouble(parameters['radius'])
             : 10.0;
@@ -655,7 +688,9 @@ class AppData extends ChangeNotifier {
         final strokeWidth = parameters['strokeWidth'] != null
             ? parseDouble(parameters['strokeWidth'])
             : 2.0;
-        final gradientColors = parseGradientColors(parameters['gradientColors']);
+        final gradientColors = parseGradientColors(
+          parameters['gradientColors'],
+        );
         addDrawable(
           Circle(
             center: Offset(dx, dy),
@@ -686,7 +721,9 @@ class AppData extends ChangeNotifier {
             : 1.0;
         final start = Offset(startX, startY);
         final end = Offset(endX, endY);
-        addDrawable(Line(start: start, end: end, color: color, strokeWidth: strokeWidth));
+        addDrawable(
+          Line(start: start, end: end, color: color, strokeWidth: strokeWidth),
+        );
         break;
 
       case 'draw_rectangle':
@@ -702,16 +739,20 @@ class AppData extends ChangeNotifier {
           final strokeWidth = parameters['strokeWidth'] != null
               ? parseDouble(parameters['strokeWidth'])
               : 2.0;
-          final gradientColors = parseGradientColors(parameters['gradientColors']);
+          final gradientColors = parseGradientColors(
+            parameters['gradientColors'],
+          );
           final topLeft = Offset(topLeftX, topLeftY);
           final bottomRight = Offset(bottomRightX, bottomRightY);
-          addDrawable(Rectangle(
-            topLeft: topLeft,
-            bottomRight: bottomRight,
-            color: color,
-            strokeWidth: strokeWidth,
-            gradientColors: gradientColors.isNotEmpty ? gradientColors : null,
-          ));
+          addDrawable(
+            Rectangle(
+              topLeft: topLeft,
+              bottomRight: bottomRight,
+              color: color,
+              strokeWidth: strokeWidth,
+              gradientColors: gradientColors.isNotEmpty ? gradientColors : null,
+            ),
+          );
         } else {
           print("Missing rectangle properties: $parameters");
         }
@@ -730,14 +771,16 @@ class AppData extends ChangeNotifier {
               : 14.0;
           final fontWeight = parseFontWeight(parameters['fontWeight']);
           final fontStyle = parseFontStyle(parameters['fontStyle']);
-          addDrawable(TextElement(
-            position: Offset(x, y),
-            text: text,
-            color: color,
-            fontSize: fontSize,
-            fontWeight: fontWeight,
-            fontStyle: fontStyle,
-          ));
+          addDrawable(
+            TextElement(
+              position: Offset(x, y),
+              text: text,
+              color: color,
+              fontSize: fontSize,
+              fontWeight: fontWeight,
+              fontStyle: fontStyle,
+            ),
+          );
         } else {
           print("Missing text properties: $parameters");
         }

@@ -23,3 +23,5 @@ class CanvasPainter extends CustomPainter {
     return true;
   }
 }
+
+// pinta y maneja el canvas

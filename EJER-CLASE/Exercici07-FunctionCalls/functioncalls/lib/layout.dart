@@ -7,6 +7,8 @@ import 'app_data.dart';
 import 'canvas_painter.dart';
 import 'drawable.dart';
 
+// todo esto es interfaz zzz
+
 class Layout extends StatefulWidget {
   const Layout({super.key, required this.title});
 
@@ -18,7 +20,6 @@ class Layout extends StatefulWidget {
 
 class _LayoutState extends State<Layout> {
   String _colorToName(Color color) {
-    // simple reverse mapping for known colors
     if (color == Colors.red) return 'red';
     if (color == Colors.blue) return 'blue';
     if (color == Colors.green) return 'green';
@@ -30,7 +31,6 @@ class _LayoutState extends State<Layout> {
     if (color == Colors.pink) return 'pink';
     if (color == Colors.brown) return 'brown';
     if (color == Colors.grey) return 'grey';
-    // fallback to hex
     return '#${color.value.toRadixString(16).padLeft(8, '0')}';
   }
 
@@ -43,145 +43,147 @@ class _LayoutState extends State<Layout> {
 
     final random = Random();
     final placeholders = [
-      'Dibuixa una línia 10, 50 i 100, 25 ...',
-      'Dibuixa dues linies i dos cercles',
-      'Dibuixa un cercle amb centre a 150, 200 i radi 50 ...',
-      'Fes un rectangle entre x=10, y=20 i x=100, y=200 ...',
-      'Dibuixa un cercle a la posició 50,100 de radi 34.66',
+      'Dibuja una línea 10, 50 y 100, 25 ...',
+      'Dibuja dos líneas y dos círculos',
+      'Dibuja un círculo con centro en 150, 200 y radio 50 ...',
+      'Haz un rectángulo entre x=10, y=20 y x=100, y=200 ...',
+      'Dibuja un círculo en la posición 50,100 de radio 34.66',
     ];
 
     return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text(widget.title),
-        ),
-        child: SafeArea(
-          child: Stack(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        // update canvas size in model
-                        appData.canvasWidth = constraints.maxWidth;
-                        appData.canvasHeight = constraints.maxHeight;
-                        return GestureDetector(
-                          onTapDown: (details) {
-                            appData.selectShapeAtPosition(details.localPosition);
-                          },
-                          child: Container(
-                            color: CupertinoColors.systemGrey5,
-                            child: CustomPaint(
-                              painter: CanvasPainter(
-                                drawables: appData.drawables,
-                                selectedIndex: appData.selectedShapeIndex,
-                              ),
-                              child: Container(),
+      navigationBar: CupertinoNavigationBar(middle: Text(widget.title)),
+      child: SafeArea(
+        child: Stack(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      // update canvas size in model
+                      appData.canvasWidth = constraints.maxWidth;
+                      appData.canvasHeight = constraints.maxHeight;
+                      return GestureDetector(
+                        onTapDown: (details) {
+                          appData.selectShapeAtPosition(details.localPosition);
+                        },
+                        child: Container(
+                          color: CupertinoColors.systemGrey5,
+                          child: CustomPaint(
+                            painter: CanvasPainter(
+                              drawables: appData.drawables,
+                              selectedIndex: appData.selectedShapeIndex,
                             ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: CupertinoScrollbar(
-                              controller: scrollController,
-                              child: SingleChildScrollView(
-                                controller: scrollController,
-                                child: SizedBox(
-                                  width: double.infinity,
-                                  child: Text(
-                                    appData.responseText,
-                                    style: const TextStyle(fontSize: 16.0),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            child: Container(),
                           ),
                         ),
-                        SizedBox(
-                          height: appData.selectedShape != null ? 150 : 0,
-                          child: appData.selectedShape != null
-                              ? _buildPropertiesPanel(
-                                  appData, propertiesController)
-                              : null,
-                        ),
-                        SizedBox(
-                          height: 100,
-                          width: double.infinity,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: CDKFieldText(
-                              maxLines: 5,
-                              controller: textController,
-                              placeholder: placeholders[
-                                  random.nextInt(placeholders.length)],
-                              enabled:
-                                  !appData.isLoading, // Desactiva si carregant
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: CDKButton(
-                                  style: CDKButtonStyle.action,
-                                  onPressed: appData.isLoading
-                                      ? null
-                                      : () {
-                                          final userPrompt =
-                                              textController.text;
-                                          appData.callWithCustomTools(
-                                              userPrompt: userPrompt);
-                                        },
-                                  child: const Text('Query'),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: CDKButton(
-                                  onPressed: appData.isLoading
-                                      ? () => appData.cancelRequests()
-                                      : null,
-                                  child: const Text('Cancel'),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              if (appData.isLoading)
-                Positioned.fill(
-                  child: Container(
-                    color: CupertinoColors.systemGrey.withOpacity(0.5),
-                    child: const Center(
-                      child: CupertinoActivityIndicator(
-                        radius: 20,
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ),
-            ],
-          ),
-        ));
+                Expanded(
+                  flex: 1,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: CupertinoScrollbar(
+                            controller: scrollController,
+                            child: SingleChildScrollView(
+                              controller: scrollController,
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: Text(
+                                  appData.responseText,
+                                  style: const TextStyle(fontSize: 16.0),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: appData.selectedShape != null ? 150 : 0,
+                        child: appData.selectedShape != null
+                            ? _buildPropertiesPanel(
+                                appData,
+                                propertiesController,
+                              )
+                            : null,
+                      ),
+                      SizedBox(
+                        height: 100,
+                        width: double.infinity,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CDKFieldText(
+                            maxLines: 5,
+                            controller: textController,
+                            placeholder:
+                                placeholders[random.nextInt(
+                                  placeholders.length,
+                                )],
+                            enabled:
+                                !appData.isLoading, // Desactiva si cargando
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: CDKButton(
+                                style: CDKButtonStyle.action,
+                                onPressed: appData.isLoading
+                                    ? null
+                                    : () {
+                                        final userPrompt = textController.text;
+                                        appData.callWithCustomTools(
+                                          userPrompt: userPrompt,
+                                        );
+                                      },
+                                child: const Text('Query'),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: CDKButton(
+                                onPressed: appData.isLoading
+                                    ? () => appData.cancelRequests()
+                                    : null,
+                                child: const Text('Cancel'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            if (appData.isLoading)
+              Positioned.fill(
+                child: Container(
+                  color: CupertinoColors.systemGrey.withOpacity(0.5),
+                  child: const Center(
+                    child: CupertinoActivityIndicator(radius: 20),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildPropertiesPanel(
-      AppData appData, ScrollController propertiesController) {
+    AppData appData,
+    ScrollController propertiesController,
+  ) {
     return Container(
       child: Column(
         children: [
@@ -190,14 +192,20 @@ class _LayoutState extends State<Layout> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Properties',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                const Text(
+                  'Properties',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
                 CupertinoButton(
                   padding: EdgeInsets.zero,
                   onPressed: () => appData.deleteSelectedShape(),
-                  child: const Text('Delete',
-                      style: TextStyle(
-                          color: CupertinoColors.systemRed, fontSize: 12)),
+                  child: const Text(
+                    'Delete',
+                    style: TextStyle(
+                      color: CupertinoColors.systemRed,
+                      fontSize: 12,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -265,9 +273,11 @@ class _LayoutState extends State<Layout> {
             children: [
               SizedBox(
                 width: 80,
-                child: Text(entry.key,
-                    style: const TextStyle(fontSize: 12),
-                    overflow: TextOverflow.ellipsis),
+                child: Text(
+                  entry.key,
+                  style: const TextStyle(fontSize: 12),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               Expanded(
                 child: CupertinoTextField(

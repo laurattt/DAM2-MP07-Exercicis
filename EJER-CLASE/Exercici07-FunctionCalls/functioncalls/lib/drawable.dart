@@ -7,6 +7,7 @@ abstract class Drawable {
   }
 }
 
+// dibujar linea
 class Line extends Drawable {
   final Offset start;
   final Offset end;
@@ -29,7 +30,8 @@ class Line extends Drawable {
   }
 
   @override
-  void drawSelected(Canvas canvas) { // Esta es la función que se usa para dibujar la selección
+  void drawSelected(Canvas canvas) {
+    // dibuja
     final paint = Paint()
       ..color = Colors.blue
       ..strokeWidth = 3.0;
@@ -37,6 +39,7 @@ class Line extends Drawable {
   }
 }
 
+// dibuja rectangulo
 class Rectangle extends Drawable {
   final Offset topLeft;
   final Offset bottomRight;
@@ -75,19 +78,17 @@ class Rectangle extends Drawable {
   }
 
   @override
-  void drawSelected(Canvas canvas) { // Esta es la función que se usa para dibujar la selección
+  void drawSelected(Canvas canvas) {
     final rect = Rect.fromPoints(topLeft, bottomRight);
     final paint = Paint()
       ..color = Colors.blue
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
-    canvas.drawRect(
-      rect.inflate(3.0),
-      paint,
-    );
+    canvas.drawRect(rect.inflate(3.0), paint);
   }
 }
 
+// dibuja circulo
 class Circle extends Drawable {
   final Offset center;
   final double radius;
@@ -125,7 +126,7 @@ class Circle extends Drawable {
   }
 
   @override
-  void drawSelected(Canvas canvas) { // Esta es la función que se usa para dibujar la selección
+  void drawSelected(Canvas canvas) {
     final paint = Paint()
       ..color = Colors.blue
       ..strokeWidth = 2.0
@@ -134,6 +135,7 @@ class Circle extends Drawable {
   }
 }
 
+// escribe la parte del texto
 class TextElement extends Drawable {
   final String text;
   final Offset position;
@@ -159,10 +161,7 @@ class TextElement extends Drawable {
       fontWeight: fontWeight,
       fontStyle: fontStyle,
     );
-    final textSpan = TextSpan(
-      text: text,
-      style: textStyle,
-    );
+    final textSpan = TextSpan(text: text, style: textStyle);
     final textPainter = TextPainter(
       text: textSpan,
       textDirection: TextDirection.ltr,

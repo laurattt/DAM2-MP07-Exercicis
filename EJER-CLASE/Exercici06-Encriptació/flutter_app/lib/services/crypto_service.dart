@@ -16,7 +16,9 @@ class CryptoService {
     final inputBytes = await inputFile.readAsBytes();
     final publicKeyString = await publicKeyFile.readAsString();
 
-    final publicKey = RSAKeyParser().parse(publicKeyString) as RSAPublicKey;
+    final parsed = RSAKeyParser().parse(publicKeyString);
+    if (parsed is! RSAPublicKey) throw Exception('El archivo seleccionado no es una clave pública RSA');
+    final publicKey = parsed;
 
     final encrypter = Encrypter(RSA(publicKey: publicKey));
 
@@ -38,7 +40,9 @@ class CryptoService {
     final encryptedBytes = await inputFile.readAsBytes();
     final privateKeyString = await privateKeyFile.readAsString();
 
-    final privateKey = RSAKeyParser().parse(privateKeyString) as RSAPrivateKey;
+    final parsed = RSAKeyParser().parse(privateKeyString);
+    if (parsed is! RSAPrivateKey) throw Exception('El archivo seleccionado no es una clave privada RSA');
+    final privateKey = parsed;
 
     final encrypter = Encrypter(RSA(privateKey: privateKey));
 

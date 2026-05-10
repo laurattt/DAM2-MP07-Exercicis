@@ -9,14 +9,92 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: const Color(0xFF0F1117),
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF0F1117),
+          title: const Row(
+            children: [
+              Icon(Icons.lock_outline, color: Color(0xFF7C6AF7)),
+              SizedBox(width: 8),
+              Text('RSA Tool', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          bottom: const TabBar(
+            indicatorColor: Color(0xFF7C6AF7),
+            labelColor: Color(0xFF7C6AF7),
+            unselectedLabelColor: Colors.white38,
+            tabs: [
+              Tab(icon: Icon(Icons.lock), text: 'Encriptar'),
+              Tab(icon: Icon(Icons.lock_open), text: 'Desencriptar'),
+            ],
+          ),
+        ),
+        body: const TabBarView(
+          children: [EncryptPanel(), DecryptPanel()],
+        ),
+      ),
+    );
+  }
+}
+
+class _FilePicker extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final String? selectedPath;
+  final VoidCallback onTap;
+
+  const _FilePicker({
+    required this.label,
+    required this.icon,
+    required this.selectedPath,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = selectedPath != null;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFF1E1B3A) : const Color(0xFF2C2F3E),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selected ? const Color(0xFF7C6AF7) : Colors.white38,
+          ),
+        ),
         child: Row(
-          children: const [
-            Expanded(child: EncryptPanel()),
-            SizedBox(width: 16),
-            Expanded(child: DecryptPanel()),
+          children: [
+            Icon(icon, color: selected ? const Color(0xFF7C6AF7) : Colors.white60, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label, style: const TextStyle(color: Colors.white60, fontSize: 11)),
+                  const SizedBox(height: 2),
+                  Text(
+                    selected ? p.basename(selectedPath!) : 'Toca para seleccionar...',
+                    style: TextStyle(
+                      color: selected ? Colors.white : Colors.white54,
+                      fontSize: 13,
+                      fontWeight: selected ? FontWeight.w500 : FontWeight.normal,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              selected ? Icons.check_circle : Icons.chevron_right,
+              color: selected ? const Color(0xFF7C6AF7) : Colors.white54,
+              size: 18,
+            ),
           ],
         ),
       ),
@@ -28,7 +106,7 @@ class EncryptPanel extends StatefulWidget {
   const EncryptPanel({super.key});
 
   @override
-  State<StatefulWidget> createState() => _EncryptPanelState();
+  State<EncryptPanel> createState() => _EncryptPanelState();
 }
 
 class _EncryptPanelState extends State<EncryptPanel> {
@@ -37,136 +115,83 @@ class _EncryptPanelState extends State<EncryptPanel> {
 
   String? publicKeyPath;
   String? fileToEncryptPath;
+  bool _loading = false;
 
-  final publicKeyController = TextEditingController();
-  final fileController = TextEditingController();
-
-  Future<void> selectPublicKey() async {
-
+  Future<void> _pick(void Function(String) onPicked) async {
     final path = await fileService.pickFile();
-
-    if (path == null) return;
-
-    setState(() {
-      publicKeyPath = path;
-      publicKeyController.text = p.basename(path);
-    });
+    if (path != null) setState(() => onPicked(path));
   }
 
-  Future<void> selectFileToEncrypt() async {
+  Future<void> _encrypt() async {
+    if (publicKeyPath == null || fileToEncryptPath == null) {
+      _snack('Selecciona los dos archivos primero', error: true);
+      return;
+    }
+    setState(() => _loading = true);
+    try {
+      final out = '$fileToEncryptPath.enc';
+      await cryptoService.encryptFile(
+        inputFilePath: fileToEncryptPath!,
+        publicKeyPath: publicKeyPath!,
+        outputFilePath: out,
+      );
+      _snack('Guardado como ${p.basename(out)}');
+    } catch (e) {
+      _snack('$e', error: true);
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
 
-    final path = await fileService.pickFile();
-
-    if (path == null) return;
-
-    setState(() {
-      fileToEncryptPath = path;
-      fileController.text = p.basename(path);
-    });
+  void _snack(String msg, {bool error = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(msg),
+      backgroundColor: error ? Colors.red[800] : const Color(0xFF7C6AF7),
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            Text("Encriptar",
-                style: Theme.of(context).textTheme.titleLarge),
-
-            const SizedBox(height: 20),
-
-            const Text("Clave pública (RSA):"),
-
-            Row(
-              children: [
-
-                Expanded(
-                  child: TextField(
-                    controller: publicKeyController,
-                    readOnly: true,
-                  ),
-                ),
-
-                const SizedBox(width: 8),
-
-                ElevatedButton(
-                  onPressed: selectPublicKey,
-                  child: const Text("Selecciona..."),
-                )
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            const Text("Archivo a encriptar:"),
-
-            Row(
-              children: [
-
-                Expanded(
-                  child: TextField(
-                    controller: fileController,
-                    readOnly: true,
-                  ),
-                ),
-
-                const SizedBox(width: 8),
-
-                ElevatedButton(
-                  onPressed: selectFileToEncrypt,
-                  child: const Text("Navega..."),
-                )
-              ],
-            ),
-
-            const Spacer(),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (publicKeyPath == null || fileToEncryptPath == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Selecciona todos los archivos primero")),
-                    );
-                    return;
-                  }
-
-                  //ruta definida, archivo.txt -> archivo.txt.enc
-                  final outputFilePath = '$fileToEncryptPath.enc';
-
-                  try {
-                    // indicador carga - ejecutar
-                    await cryptoService.encryptFile(
-                      inputFilePath: fileToEncryptPath!,
-                      publicKeyPath: publicKeyPath!,
-                      outputFilePath: outputFilePath,
-                    );
-
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("¡Archivo encriptado en: ${p.basename(outputFilePath)}!")),
-                      );
-                    }
-                  } catch (e) {
-                    print(e);
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
-                      );
-                    }
-                  }
-                },
-                child: const Text("Encripta Archivo"),
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Archivos necesarios',
+              style: TextStyle(color: Colors.white54, fontSize: 12, letterSpacing: 1)),
+          const SizedBox(height: 12),
+          _FilePicker(
+            label: 'Clave pública (.pem)',
+            icon: Icons.vpn_key_outlined,
+            selectedPath: publicKeyPath,
+            onTap: () => _pick((v) => publicKeyPath = v),
+          ),
+          const SizedBox(height: 10),
+          _FilePicker(
+            label: 'Archivo a encriptar',
+            icon: Icons.insert_drive_file_outlined,
+            selectedPath: fileToEncryptPath,
+            onTap: () => _pick((v) => fileToEncryptPath = v),
+          ),
+          const Spacer(),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF7C6AF7),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-            )
-          ],
-        ),
+              onPressed: _loading ? null : _encrypt,
+              icon: _loading
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Icon(Icons.lock),
+              label: Text(_loading ? 'Encriptando...' : 'Encriptar archivo'),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -183,164 +208,92 @@ class _DecryptPanelState extends State<DecryptPanel> {
   final fileService = FileService();
   final cryptoService = CryptoService();
 
-  // rutas 
-  String? privateKeyPath = "/home/super/.ssh/id_rsa";
+  String? privateKeyPath;
   String? fileToDecryptPath;
   String? outputFilePath;
+  bool _loading = false;
 
-  // nombres archivos zzzz
-  final privateKeyController = TextEditingController();
-  final encryptedFileController = TextEditingController();
-  final outputFileController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    privateKeyController.text = p.basename(privateKeyPath!);
+  Future<void> _pick(void Function(String) onPicked) async {
+    final path = await fileService.pickFile();
+    if (path != null) setState(() => onPicked(path));
   }
 
-  Future<void> selectPrivateKey() async {
-    final path = await fileService.pickFile();
-    if (path == null) return;
-    setState(() {
-      privateKeyPath = path;
-      privateKeyController.text = p.basename(path);
-    });
+  Future<void> _decrypt() async {
+    if (privateKeyPath == null || fileToDecryptPath == null || outputFilePath == null) {
+      _snack('Selecciona los tres archivos primero', error: true);
+      return;
+    }
+    setState(() => _loading = true);
+    try {
+      await cryptoService.decryptFile(
+        inputFilePath: fileToDecryptPath!,
+        privateKeyPath: privateKeyPath!,
+        outputFilePath: outputFilePath!,
+      );
+      _snack('¡Desencriptado con éxito!');
+    } catch (e) {
+      _snack('$e', error: true);
+    } finally {
+      setState(() => _loading = false);
+    }
   }
 
-  Future<void> selectFileToDecrypt() async {
-    final path = await fileService.pickFile();
-    if (path == null) return;
-    setState(() {
-      fileToDecryptPath = path;
-      encryptedFileController.text = p.basename(path);
-    });
-  }
-
-  Future<void> selectOutputPath() async {
-    // pickfile para destino
-    final path = await fileService.pickFile();
-    if (path == null) return;
-    setState(() {
-      outputFilePath = path;
-      outputFileController.text = p.basename(path);
-    });
+  void _snack(String msg, {bool error = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(msg),
+      backgroundColor: error ? Colors.red[800] : Colors.green[700],
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Desencriptar",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 20),
-
-            // rsa
-            const Text("Clave privada (RSA):"),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: privateKeyController,
-                    readOnly: true,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: selectPrivateKey,
-                  child: const Text("Selecciona..."),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // arciv encrip
-            const Text("Archivo encriptado:"),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: encryptedFileController,
-                    readOnly: true,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: selectFileToDecrypt,
-                  child: const Text("Selecciona..."),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // archivo de salida
-            const Text("Archivo desencriptado (Destino):"),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: outputFileController,
-                    readOnly: true,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: selectOutputPath,
-                  child: const Text("Selecciona"),
-                ),
-              ],
-            ),
-
-            const Spacer(),
-
-            // accion button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                ),
-                onPressed: () async {
-                  if (privateKeyPath == null || fileToDecryptPath == null || outputFilePath == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Por favor, selecciona los tres archivos necesarios")),
-                    );
-                    return;
-                  }
-
-                  try {
-                    await cryptoService.decryptFile(
-                      inputFilePath: fileToDecryptPath!,
-                      privateKeyPath: privateKeyPath!,
-                      outputFilePath: outputFilePath!,
-                    );
-
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("¡Archivo desencriptado con éxito!")),
-                      );
-                    }
-                  } catch (e) {
-                    print(e);
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Error al desencriptar: $e"), backgroundColor: Colors.red),
-                      );
-                    }
-                  }
-                },
-                child: const Text("Desencriptar Archivo"),
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Archivos necesarios',
+              style: TextStyle(color: Colors.white54, fontSize: 12, letterSpacing: 1)),
+          const SizedBox(height: 12),
+          _FilePicker(
+            label: 'Clave privada (.pem)',
+            icon: Icons.vpn_key,
+            selectedPath: privateKeyPath,
+            onTap: () => _pick((v) => privateKeyPath = v),
+          ),
+          const SizedBox(height: 10),
+          _FilePicker(
+            label: 'Archivo encriptado (.enc)',
+            icon: Icons.lock_outline,
+            selectedPath: fileToDecryptPath,
+            onTap: () => _pick((v) => fileToDecryptPath = v),
+          ),
+          const SizedBox(height: 10),
+          _FilePicker(
+            label: 'Destino (archivo de salida)',
+            icon: Icons.save_alt_outlined,
+            selectedPath: outputFilePath,
+            onTap: () => _pick((v) => outputFilePath = v),
+          ),
+          const Spacer(),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2ECC71),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
+              onPressed: _loading ? null : _decrypt,
+              icon: _loading
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Icon(Icons.lock_open),
+              label: Text(_loading ? 'Desencriptando...' : 'Desencriptar archivo'),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

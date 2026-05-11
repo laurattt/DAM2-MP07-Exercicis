@@ -25,7 +25,8 @@ class Line extends Drawable {
   void draw(Canvas canvas) {
     final paint = Paint()
       ..color = color
-      ..strokeWidth = strokeWidth;
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
     canvas.drawLine(start, end, paint);
   }
 

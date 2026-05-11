@@ -9,7 +9,7 @@ import 'constants.dart';
 import 'drawable.dart';
 
 const streamingModel = 'granite3.3:2b';
-const functionCallingModel = 'granite3.3:2b';
+const functionCallingModel = 'qwen2.5:3b';
 const jsonFixModel = 'granite3.3:2b';
 
 class AppData extends ChangeNotifier {
@@ -86,6 +86,7 @@ class AppData extends ChangeNotifier {
 
   //
   void updateShapeProperty(int index, String property, dynamic value) {
+    //aqui es donde se pueden hacer cambios en la figura
     if (index >= 0 && index < drawables.length) {
       final shape = drawables[index];
 
@@ -491,6 +492,7 @@ class AppData extends ChangeNotifier {
   }
 
   Future<void> callWithCustomTools({required String userPrompt}) async {
+    // paso uno: cliente peticion ollama con las func en constants.dart (cosas que puede hacer)
     const apiUrl = 'http://localhost:11434/api/chat'; // modelo ollama
     _isInitial = false;
     setLoading(true);
@@ -658,8 +660,9 @@ class AppData extends ChangeNotifier {
     return min + Random().nextDouble() * (max - min);
   }
 
-  // functions caaaaalss
+  // functions caaaaallss
   Future<void> _processFunctionCall(Map<String, dynamic> functionCall) async {
+    // paso dos, detecta structura y diseño de peticion
     final fixedJson = await fixJsonInStrings(functionCall);
     final parametersData = fixedJson['arguments'];
     final parameters = parametersData is Map<String, dynamic>

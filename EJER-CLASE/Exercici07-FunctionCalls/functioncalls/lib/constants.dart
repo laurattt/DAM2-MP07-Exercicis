@@ -1,7 +1,7 @@
 // Defines the tools/functions available in Flutter
 
-//function callsss (funcioens que puede llamar y con que campos)
-// sirve para que la ia no responda con texto, sino directamente
+//function callsss (funciones que puede llamar y con que campos)
+// sirve para que la ia no responda con texto, sino directamente con la accion
 //      Usuario: "dibuja un círculo rojo"
 //      Modelo: { "name": "draw_circle", "arguments": { "x": 100, "y": 100, "radius": 20, "color": "red" } }
 //      app recibe ese JSON y ejecuta el código real

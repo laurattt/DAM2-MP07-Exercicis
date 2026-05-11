@@ -1,63 +1,100 @@
 import 'dart:io';
-import 'package:encrypt/encrypt.dart'; // libreria de para cifrado
+import 'dart:math';
+import 'dart:typed_data'; // libreria para cifrado AES
+import 'package:encrypt/encrypt.dart'; // libreria que encripta y desencripta
 import 'package:pointycastle/asymmetric/api.dart';
-// La clave pública (.pem) cifra los datos y solo la clave privada (.pem) puede descifrarlos.
 
 class CryptoService {
   Future<void> encryptFile({
-    required String inputFilePath, // archivo a cifrar
-    required String publicKeyPath, // ruta key .pem public
-    required String outputFilePath, // ruta de donde se guardara el cifrado
+    required String inputFilePath,
+    required String publicKeyPath,
+    required String outputFilePath,
   }) async {
-    final inputFile = File(inputFilePath); // lectura en bytes y key en texto
-    final publicKeyFile = File(publicKeyPath);
+    // lectura en bytes y la public key como PEM
+    final inputBytes = await File(inputFilePath).readAsBytes();
+    final publicKeyString = await File(publicKeyPath).readAsString();
 
-    final inputBytes = await inputFile.readAsBytes();
-    final publicKeyString = await publicKeyFile.readAsString();
-
+    // valid public keyyyy
     final parsed = RSAKeyParser().parse(publicKeyString);
     if (parsed is! RSAPublicKey)
-      throw Exception(
-        'El archivo seleccionado no es una clave pública RSA',
-      ); // validacion de clave publica
-    final publicKey = parsed;
+      throw Exception('El archivo seleccionado no es una clave pública RSA');
 
-    // se crea cifrado gracias a libreria zz
-    final encrypter = Encrypter(RSA(publicKey: publicKey));
+    final random = Random.secure();
 
-    // cofrado en bytes
-    final encrypted = encrypter.encryptBytes(inputBytes);
+    // contraseña secreta AES (funciona como candado)
+    final aesKeyBytes = Uint8List.fromList(
+      List.generate(32, (_) => random.nextInt(256)),
+    );
 
-    // escribir en en archivo bla bla
-    final outputFile = File(outputFilePath);
-    await outputFile.writeAsBytes(encrypted.bytes);
+    // aqui el ivbytes genera cifrado unico
+    final ivBytes = Uint8List.fromList(
+      List.generate(16, (_) => random.nextInt(256)),
+    );
+
+    // se cifra utilizando la clave aes (sobre sellado)
+    final aesKey = Key(aesKeyBytes);
+    final iv = IV(ivBytes);
+    final aesEncrypter = Encrypter(AES(aesKey, mode: AESMode.cbc));
+    final encryptedData = aesEncrypter.encryptBytes(inputBytes, iv: iv);
+
+    // se cifra clave aes con la key
+    final rsaEncrypter = Encrypter(RSA(publicKey: parsed));
+    final encryptedAesKey = rsaEncrypter.encryptBytes(aesKeyBytes);
+
+    // se construye el archivo de salida
+    final keyLength = encryptedAesKey.bytes.length;
+    final output = BytesBuilder();
+    output.add(
+      Uint8List(4)..buffer.asByteData().setInt32(0, keyLength, Endian.big),
+    );
+    output.add(encryptedAesKey.bytes);
+    output.add(ivBytes);
+    output.add(encryptedData.bytes);
+
+    print('[CryptoService] Archivo cifrado guardado en: $outputFilePath');
+    await File(outputFilePath).writeAsBytes(output.toBytes());
   }
 
-  // descifra usando una key privada pemmm
+  //tengo mi archivo, le doy una clave aes para cifrarlo, despues con mi public key cifro esa clave aes y empaqueto para obtener mi .enc
+
   Future<void> decryptFile({
     required String inputFilePath,
     required String privateKeyPath,
     required String outputFilePath,
   }) async {
-    // Leemos el archivo cifrado como bytes y la clave privada como texto PEM
-    final inputFile = File(inputFilePath);
-    final privateKeyFile = File(privateKeyPath);
+    final inputBytes = await File(inputFilePath).readAsBytes();
+    final privateKeyString = await File(privateKeyPath).readAsString();
 
-    final encryptedBytes = await inputFile.readAsBytes();
-    final privateKeyString = await privateKeyFile.readAsString();
-
-    // RSAKeyParser interpreta el texto PEM; validamos que sea una clave privada
     final parsed = RSAKeyParser().parse(privateKeyString);
     if (parsed is! RSAPrivateKey)
       throw Exception('El archivo seleccionado no es una clave privada RSA');
-    final privateKey = parsed;
 
-    // funciones de libreria encrypt para descifrar
-    final encrypter = Encrypter(RSA(privateKey: privateKey));
-    final decrypted = encrypter.decryptBytes(Encrypted(encryptedBytes));
+    // lectura clave AES
+    final keyLength = ByteData.sublistView(
+      inputBytes,
+      0,
+      4,
+    ).getInt32(0, Endian.big);
 
-    // bytes descifrados en el archivo de salida
-    final outputFile = File(outputFilePath);
-    await outputFile.writeAsBytes(decrypted);
+    // se extrae seccion del archivo, prim 4 tamaño detecta longitud clave aes
+    final encryptedAesKey = inputBytes.sublist(4, 4 + keyLength);
+    final ivBytes = inputBytes.sublist(4 + keyLength, 4 + keyLength + 16);
+    final encryptedData = inputBytes.sublist(4 + keyLength + 16);
+    //desencripta con aes + key
+
+    // se descifra clave aes con private_key
+    final rsaEncrypter = Encrypter(RSA(privateKey: parsed));
+    final aesKeyBytes = rsaEncrypter.decryptBytes(Encrypted(encryptedAesKey));
+
+    // se descifra el archivo y se recupera
+    final aesKey = Key(Uint8List.fromList(aesKeyBytes));
+    final iv = IV(Uint8List.fromList(ivBytes));
+    final aesEncrypter = Encrypter(AES(aesKey, mode: AESMode.cbc));
+    final decrypted = aesEncrypter.decryptBytes(
+      Encrypted(encryptedData),
+      iv: iv,
+    );
+
+    await File(outputFilePath).writeAsBytes(decrypted);
   }
 }
